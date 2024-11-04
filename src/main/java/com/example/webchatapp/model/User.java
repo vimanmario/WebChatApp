@@ -1,5 +1,6 @@
 package com.example.webchatapp.model;
-import javax.persistence.*;
+
+import jakarta.persistence.*;
 
 @Entity
 public class User {
@@ -7,9 +8,13 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(unique = true)
     private String username;
+
     private String password;
-    // Getteri și Setteri
+
+    // Getters, setters, and constructors
+
 
     public Long getId() {
         return id;
