@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.util.Arrays;
 
 // Folosit pentru  a monitoriza detalii despre sessiuni si cookie-uri , in special pt debugging in caz de nevoie
+// Chestiile de coocki-uri nu doar pentru NoCacheFilter
 public class SessionDebugFilter implements Filter {
     private static final Logger logger = LoggerFactory.getLogger(SessionDebugFilter.class);
 
@@ -40,6 +41,7 @@ public class SessionDebugFilter implements Filter {
         chain.doFilter(request, response);
     }
 
+    // Nu e necesar momentan
     @Override
     public void destroy() {
         // Curățare filtru dacă este necesar
