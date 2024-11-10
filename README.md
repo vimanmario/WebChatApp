@@ -1,4 +1,4 @@
-### WebChat Application with Spring Boot
+# WebChat Application with Spring Boot
 
 MUST: 
 - conversatie publica 
