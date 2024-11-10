@@ -1,3 +1,5 @@
+### WebChat Application with Spring Boot
+
 MUST: 
 - conversatie publica 
 - conversatii 1 la 1
