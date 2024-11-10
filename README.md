@@ -5,12 +5,12 @@
   Aplicația permite utilizatorilor să se alăture, să discute și să părăsească camerele de chat în timp real. Spring Boot oferă o arhitectură robustă și scalabilă pentru aplicație, în timp ce WebSocket permite comunicarea în timp real între server și clienți. Aplicația are funcții precum alăturarea camerelor de chat, trimiterea de mesaje și părăsirea camerelor de chat, oferind o experiență de chat perfectă și interactivă pentru utilizatorii săi.
 
 ### Stack Tehnologic
-- **Spring Boot**:
-- Security Config
-- Spring Data JPA
-- Web Session
-- WebSockets
-- Thymeleaf
+- **Spring Boot:** configurare rapida si structura de baza pentru aplicatie.
+- **Security Config:** ofera un sistem de autentificare si autorizare pentru securizarea aplicatiei.
+- **Spring Data JPA:** permitere gestionarea si persistenta datelor utilizatorilor. 
+- **Web Session:** gestioneaza sesiunile utilizatorilor in mod securizat.
+- **WebSockets:** suporta comunicarea bidirectionalea in timp real intre client si server.
+- **Thymeleaf:**
 
 MUST: 
 - conversatie publica 
