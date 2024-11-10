@@ -12,6 +12,8 @@
 - **WebSockets:** suporta comunicarea bidirectionalea in timp real intre client si server.
 - **Thymeleaf:**
 
+### MoSCoW List
+
 MUST: 
 - conversatie publica 
 - conversatii 1 la 1
