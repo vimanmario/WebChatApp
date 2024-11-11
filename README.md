@@ -6,7 +6,7 @@
 
 ### Stack Tehnologic
 - **Spring Boot:** configurare rapida si structura de baza pentru aplicatie.
-- **Security Config:** ofera un sistem de autentificare si autorizare pentru securizarea aplicatiei.
+- **Spring Security:** ofera un sistem de autentificare si autorizare pentru securizarea aplicatiei.
 - **Spring Data JPA:** permitere gestionarea si persistenta datelor utilizatorilor. 
 - **Web Session:** gestioneaza sesiunile utilizatorilor in mod securizat.
 - **WebSockets:** suporta comunicarea bidirectionalea in timp real intre client si server.
@@ -28,7 +28,7 @@ COULD:
 - reactie la mesaje
 - apeluri video
 - poze facute si trimise instant
-- redenumire conversatie
+- redenumire conversatie/setare nickname
 - trimitere emoji-uri, stickere
 
 WON'T:
