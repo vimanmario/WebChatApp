@@ -27,6 +27,7 @@ public class SecurityConfig {
         this.passwordEncoder = passwordEncoder;
     }
 
+    // incarcarea utilizatorului si validarea parolei folosind userService
     @Bean
     public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
         AuthenticationManagerBuilder auth = http.getSharedObject(AuthenticationManagerBuilder.class);

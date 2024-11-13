@@ -8,6 +8,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @Configuration
 public class EncoderConfig {
 
+    // folosit pentru a cripta parola inainte de inserarea in bd
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
