@@ -60,8 +60,9 @@ public class SecurityConfig {
                         .rememberMeCookieName("remember-me") // Numele cookie-ului "remember me"
                 )
                 .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.ALWAYS)
-                        .maximumSessions(1) // Limitează la o singură sesiune activă per utilizator
+                        .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
+                        .maximumSessions(1)
+                        .maxSessionsPreventsLogin(true)
                         .expiredUrl("/login?expired")
                 );
 
