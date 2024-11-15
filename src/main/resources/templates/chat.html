@@ -4,18 +4,96 @@
   <title>Chat Room</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.1/sockjs.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+  <style>
+    /* Stilizare pentru containerul general */
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    h1 {
+      text-align: center;
+    }
+    #chat-container {
+      width: 60%;
+      max-width: 800px;
+      border: 1px solid #ccc;
+      padding: 20px;
+      margin-top: 20px;
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #messages {
+      max-height: 400px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+    .message {
+      padding: 10px;
+      border-radius: 10px;
+      max-width: 70%;
+    }
+    .message.right {
+      align-self: flex-end;
+      background-color: #d1ffd6;
+      text-align: right;
+    }
+    .message.left {
+      align-self: flex-start;
+      background-color: #f1f1f1;
+      text-align: left;
+    }
+    #input-container {
+      display: flex;
+      gap: 10px;
+    }
+    #messageInput {
+      flex-grow: 1;
+      padding: 10px;
+      font-size: 1em;
+    }
+    #logout-button {
+      align-self: flex-end;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      background-color: #f44336;
+      color: white;
+      font-size: 1em;
+      margin-top: 10px;
+    }
+  </style>
 </head>
 <body>
 <h1>Welcome to the chat room!</h1>
-<div id="messages"></div>
-<input type="text" id="messageInput" placeholder="Type your message...">
-<button onclick="sendMessage()">Send</button>
+
+<!-- Container pentru chat -->
+<div id="chat-container">
+  <div id="messages"></div>
+
+  <!-- Container pentru mesajul de intrare și butonul de trimitere -->
+  <div id="input-container">
+    <input type="text" id="messageInput" placeholder="Type your message...">
+    <button onclick="sendMessage()">Send</button>
+  </div>
+</div>
+
+<!-- Buton de logout -->
+<button id="logout-button" onclick="logout()">Logout</button>
 
 <script>
   let stompClient = null;
+  const currentUser = "currentUser"; // Trebuie înlocuit cu numele sau ID-ul utilizatorului curent
 
   function connect() {
-    const socket = new SockJS('/chat-websocket'); // Endpoint definit în `WebSocketConfig`
+    const socket = new SockJS('/chat-websocket');
     stompClient = Stomp.over(socket);
 
     stompClient.connect({}, function (frame) {
@@ -23,7 +101,8 @@
 
       // Abonare la topicul public pentru a primi mesaje
       stompClient.subscribe('/topic/public', function (message) {
-        showMessage(JSON.parse(message.body).content);
+        const parsedMessage = JSON.parse(message.body);
+        showMessage(parsedMessage.content, parsedMessage.sender);
       });
     });
   }
@@ -33,15 +112,50 @@
     const messageContent = messageInput.value.trim();
 
     if (messageContent && stompClient) {
-      stompClient.send("/app/chat.sendMessage", {}, JSON.stringify({content: messageContent}));
+      stompClient.send("/app/chat.sendMessage", {}, JSON.stringify({
+        content: messageContent,
+        sender: currentUser // Trimitem și numele sau ID-ul utilizatorului curent
+      }));
       messageInput.value = '';
     }
   }
 
-  function showMessage(message) {
+  function showMessage(message, sender) {
     const messageElement = document.createElement("div");
-    messageElement.textContent = message;
+    messageElement.classList.add("message");
+
+    // Mesajele utilizatorului curent sunt poziționate la dreapta
+    if (sender === currentUser) {
+      messageElement.classList.add("right");
+    } else {
+      messageElement.classList.add("left");
+    }
+
+    messageElement.textContent = `${sender}: ${message}`;
     document.getElementById("messages").appendChild(messageElement);
+  }
+
+  function logout() {
+    // Închide conexiunea WebSocket
+    if (stompClient && stompClient.connected) {
+      stompClient.disconnect(() => {
+        console.log("WebSocket disconnected.");
+      });
+    }
+
+    // Șterge localStorage și sessionStorage
+    localStorage.clear();
+    sessionStorage.clear();
+
+    // Trimite cererea de logout către server
+    fetch('/logout', { method: 'POST' })
+            .then(() => {
+              // Redirecționează utilizatorul la pagina de login
+              window.location.href = "/login";
+            })
+            .catch((error) => {
+              console.error("Logout failed:", error);
+            });
   }
 
   // Conectare WebSocket când pagina este încărcată

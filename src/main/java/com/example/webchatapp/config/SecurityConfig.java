@@ -13,6 +13,8 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.logout.HeaderWriterLogoutHandler;
+import org.springframework.security.web.header.writers.ClearSiteDataHeaderWriter;
 import org.springframework.web.filter.DelegatingFilterProxy;
 
 @Configuration
@@ -49,8 +51,10 @@ public class SecurityConfig {
                         .permitAll()
                 )
                 .logout(logout -> logout
-                        .logoutUrl("/logout")
-                        .logoutSuccessUrl("/login")
+                        .logoutUrl("/logout") // "perform_logout" sau "/logout"
+                        .logoutSuccessUrl("/login") // Redirectionare catre login dupa log-out
+                        .invalidateHttpSession(true) // Invalidatează sesiunea
+                        .clearAuthentication(true) // Șterge autentificarea
                         .deleteCookies("JSESSIONID", "remember-me")
                         .permitAll()
                 )
@@ -72,7 +76,7 @@ public class SecurityConfig {
     // acesta dezactiveaza  cache-ul pe paginile sensibile, teoretic nu prea avem nevoie de el fiindca in majoritatea
     // aplicatiilor web acesta este gestionat mai usor la nivel de HTTP si nu e nevoie sa fie dezactivat explicit
     // o sa comentam metoda momentan
-    /*
+
     @Bean
     public FilterRegistrationBean<NoCacheFilter> noCacheFilter() {
         FilterRegistrationBean<NoCacheFilter> registrationBean = new FilterRegistrationBean<>();
@@ -81,5 +85,5 @@ public class SecurityConfig {
         registrationBean.setOrder(1);  // Setează prioritatea filtrului
         return registrationBean;
     }
-    */
+
 }

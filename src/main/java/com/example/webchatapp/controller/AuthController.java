@@ -31,4 +31,10 @@ public class AuthController {
         userService.saveUser(user);
         return "redirect:/login";
     }
+
+//    @PostMapping("/logout")
+//    public String logoutUser(){
+//        return "redirect:/login";
+//    }
+
 }
