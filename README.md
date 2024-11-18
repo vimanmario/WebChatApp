@@ -34,3 +34,13 @@ COULD:
 WON'T:
 - trimitere audio
 - contacte
+
+### Configurare
+Cerinte preliminare:
+- Java 17
+- Maven
+- Baza de date MySql + Hibernate
+
+### Arhitectura aplicatiei
+  Aplicatia utilizeaza un design bazat pe arhitectura MVC(Model-View-Controller), fiecare componenta a proiectului fiind responsabila de un aspect specific al aplicatiei asigurand o separare clara a functionalitatilor. Model gestioneaza logica aplicatiei si interactiunea cu baza de date prin Spring JPA. View asigura afisarea datelor si interactiunea utilizatorilor prin templaturi-le Thymeleaf. Controller primeste cererile de la utilizator, interactioneaza cu serviciile si returneaza raspunsuri catre view. Aplicatia este de asemenea construita folosind module pentru securitate, gestionarea sesiunilor si comunicarea in timp real.
+
