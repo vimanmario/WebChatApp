@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -38,6 +39,23 @@ public class SessionDebugFilter implements Filter {
             logger.info("Cookies: {}", Arrays.toString(httpRequest.getCookies()));  // Loghează cookies-urile
         }
 
+        // Log cookie details
+        if (httpRequest.getCookies() != null) {
+            Arrays.stream(httpRequest.getCookies()).forEach(cookie ->
+                    logger.info("Cookie name: {}, value: {}, path: {}, maxAge: {}",
+                            cookie.getName(), cookie.getValue(), cookie.getPath(), cookie.getMaxAge())
+            );
+        }
+
+        // Log security context
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null) {
+            logger.info("Authentication principal: {}", authentication.getPrincipal());
+            logger.info("Authorities: {}", authentication.getAuthorities());
+        } else {
+            logger.info("No authentication context available for request to {}", httpRequest.getRequestURI());
+        }
+
         chain.doFilter(request, response);
     }
 
@@ -45,5 +63,6 @@ public class SessionDebugFilter implements Filter {
     @Override
     public void destroy() {
         // Curățare filtru dacă este necesar
+        logger.info("SessionDebugFilter destroyed");
     }
 }

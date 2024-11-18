@@ -90,9 +90,20 @@
 
 <script>
   let stompClient = null;
-  const currentUser = "currentUser"; // Trebuie înlocuit cu numele sau ID-ul utilizatorului curent
+  let currentUser = null; // Va fi setat după ce obținem numele utilizatorului curent.
 
   function connect() {
+    // Obține numele utilizatorului curent
+    fetch('/api/current-user') // Endpoint care returnează utilizatorul curent
+            .then(response => response.json())
+            .then(data => {
+              currentUser = data.username; // Setăm numele utilizatorului
+              initializeWebSocket();
+            })
+            .catch(error => console.error('Failed to fetch current user:', error));
+  }
+
+  function initializeWebSocket() {
     const socket = new SockJS('/chat-websocket');
     stompClient = Stomp.over(socket);
 
@@ -156,6 +167,10 @@
             .catch((error) => {
               console.error("Logout failed:", error);
             });
+
+    document.cookie = "JSESSIONID=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;";
+    document.cookie = "remember-me=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;";
+
   }
 
   // Conectare WebSocket când pagina este încărcată

@@ -3,6 +3,7 @@ package com.example.webchatapp.config;
 import com.example.webchatapp.filter.NoCacheFilter;
 import com.example.webchatapp.filter.SessionDebugFilter;
 import com.example.webchatapp.service.UserService;
+import jakarta.servlet.http.Cookie;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,6 +17,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.logout.HeaderWriterLogoutHandler;
 import org.springframework.security.web.header.writers.ClearSiteDataHeaderWriter;
 import org.springframework.web.filter.DelegatingFilterProxy;
+
 
 @Configuration
 @EnableWebSecurity
@@ -54,13 +56,13 @@ public class SecurityConfig {
                         .logoutUrl("/logout") // "perform_logout" sau "/logout"
                         .logoutSuccessUrl("/login") // Redirectionare catre login dupa log-out
                         .invalidateHttpSession(true) // Invalidatează sesiunea
-                        .clearAuthentication(true) // Șterge autentificarea
+                        //.clearAuthentication(true) // Șterge autentificarea
                         .deleteCookies("JSESSIONID", "remember-me")
                         .permitAll()
                 )
                 .rememberMe(rememberMe -> rememberMe
                         .key("uniqueAndSecret") // Cheie pentru securizarea token-ului
-                        .tokenValiditySeconds(7 * 24 * 60 * 60) // Valabilitate de 7 zile
+                        .tokenValiditySeconds(60 * 60) // o ora // Valabilitate de 7 zile (7 * 24 * 60 * 60)
                         .rememberMeCookieName("remember-me") // Numele cookie-ului "remember me"
                 )
                 .sessionManagement(session -> session
@@ -83,6 +85,15 @@ public class SecurityConfig {
         registrationBean.setFilter(new NoCacheFilter());
         registrationBean.addUrlPatterns("/chat/*", "/login", "/register"); // Specifică URL-urile ce vor trece prin filtru
         registrationBean.setOrder(1);  // Setează prioritatea filtrului
+        return registrationBean;
+    }
+
+    @Bean
+    public FilterRegistrationBean<SessionDebugFilter> sessionDebugFilter() {
+        FilterRegistrationBean<SessionDebugFilter> registrationBean = new FilterRegistrationBean<>();
+        registrationBean.setFilter(new SessionDebugFilter());
+        registrationBean.addUrlPatterns("/*"); // Aplică filtru pe toate rutele
+        registrationBean.setOrder(2); // Prioritate mai mică decât NoCacheFilter
         return registrationBean;
     }
 
