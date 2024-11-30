@@ -2,6 +2,8 @@ package com.example.webchatapp.config;
 
 import com.example.webchatapp.filter.NoCacheFilter;
 import com.example.webchatapp.filter.SessionDebugFilter;
+import com.example.webchatapp.handler.CustomLogoutHandler;
+import com.example.webchatapp.service.CustomRememberMeServices;
 import com.example.webchatapp.service.UserService;
 import jakarta.servlet.http.Cookie;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
@@ -56,14 +58,21 @@ public class SecurityConfig {
                         .logoutUrl("/logout") // "perform_logout" sau "/logout"
                         .logoutSuccessUrl("/login") // Redirectionare catre login dupa log-out
                         .invalidateHttpSession(true) // Invalidatează sesiunea
-                        //.clearAuthentication(true) // Șterge autentificarea
+                        .clearAuthentication(true) // Șterge autentificarea
                         .deleteCookies("JSESSIONID", "remember-me")
+                        .addLogoutHandler(new CustomLogoutHandler())
                         .permitAll()
                 )
                 .rememberMe(rememberMe -> rememberMe
-                        .key("uniqueAndSecret") // Cheie pentru securizarea token-ului
+                        .key("uniqueAndSecretKey") // Cheie pentru securizarea token-ului
                         .tokenValiditySeconds(60 * 60) // o ora // Valabilitate de 7 zile (7 * 24 * 60 * 60)
                         .rememberMeCookieName("remember-me") // Numele cookie-ului "remember me"
+                        .rememberMeParameter("remember-me")
+                        .useSecureCookie(true) // Pentru HTTPS
+                        //.tokenRepository(tokenRepository)
+                        //.userDetailsService(userDetailsService)
+                        //.rememberMeServices(new CustomRememberMeServices("uniqueAndSecretKey", userDetailsService, tokenRepository))
+
                 )
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)

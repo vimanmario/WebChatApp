@@ -147,16 +147,14 @@
   }
 
   function logout() {
+    console.log("Initiating logout"); // Debug 10
+
     // Închide conexiunea WebSocket
     if (stompClient && stompClient.connected) {
       stompClient.disconnect(() => {
         console.log("WebSocket disconnected.");
       });
     }
-
-    // Șterge localStorage și sessionStorage
-    localStorage.clear();
-    sessionStorage.clear();
 
     // Trimite cererea de logout către server
     fetch('/logout', { method: 'POST' })
@@ -167,6 +165,11 @@
             .catch((error) => {
               console.error("Logout failed:", error);
             });
+
+    // Șterge localStorage și sessionStorage
+    localStorage.clear();
+    sessionStorage.clear();
+    console.log("Cleared local and session storage"); // Debug 14
 
     document.cookie = "JSESSIONID=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;";
     document.cookie = "remember-me=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;";
