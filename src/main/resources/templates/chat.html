@@ -68,6 +68,7 @@
       padding: 10px;
       border-radius: 10px;
       max-width: 70%;
+      transition: background-color 0.3s ease; /* Animație ușoară pentru schimbarea culorii */
     }
     .message.right {
       align-self: flex-end;
@@ -248,12 +249,27 @@
   function searchMessages() {
     const query = document.getElementById("search-input").value.toLowerCase();
     const messages = document.querySelectorAll("#messages .message");
+
+    // Parcurgem toate mesajele pentru a le verifica
     messages.forEach(message => {
       if (message.textContent.toLowerCase().includes(query)) {
-        message.style.backgroundColor = "#ffffcc"; // Evidențiere mesaj
+        message.style.backgroundColor = "#ffffcc"; // Evidențierea mesajului găsit
+        // Adăugăm un event listener pentru a permite deselectarea
+        message.addEventListener("click", function () {
+          deselectMessage(message);
+        });
       } else {
-        message.style.backgroundColor = ""; // Resetare
+        message.style.backgroundColor = ""; // Resetare culoare pentru mesajele care nu se potrivesc
       }
+    });
+  }
+
+  function deselectMessage(message) {
+    // Resetează culoarea de fundal a mesajului la culoarea originală
+    message.style.backgroundColor = "";
+    // Dacă dorim să oprim event listener-ul, putem să-l eliminăm pentru a preveni apelarea sa de mai multe ori
+    message.removeEventListener("click", function () {
+      deselectMessage(message);
     });
   }
 
