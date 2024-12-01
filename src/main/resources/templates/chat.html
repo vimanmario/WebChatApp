@@ -17,7 +17,7 @@
     }
     #chat-container {
       width: 60%;
-      max-width: 800px;
+        max-width: 800px;
       border: 1px solid #ccc;
       padding: 20px;
       margin-top: 20px;
@@ -27,7 +27,8 @@
       gap: 10px;
     }
     #messages {
-      max-height: 400px;
+      max-height: 550px;
+      min-height: 550px;
       overflow-y: auto;
       display: flex;
       flex-direction: column;
@@ -72,7 +73,6 @@
   </style>
 </head>
 <body>
-<h1>Welcome to the chat room!</h1>
 
 <!-- Container pentru chat -->
 <div id="chat-container">
@@ -143,7 +143,11 @@
     }
 
     messageElement.textContent = `${sender}: ${message}`;
-    document.getElementById("messages").appendChild(messageElement);
+    const messagesContainer = document.getElementById("messages");
+    messagesContainer.appendChild(messageElement);
+
+    // Asigură-te că ultimul mesaj este vizibil
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
   }
 
   function logout() {
@@ -176,8 +180,35 @@
 
   }
 
-  // Conectare WebSocket când pagina este încărcată
-  window.onload = connect;
+  function loadMessages() {
+    fetch('/api/messages')
+            .then(response => response.json())
+            .then(messages => {
+              const messagesContainer = document.getElementById("messages");
+              messagesContainer.innerHTML = ""; // Curăță mesajele vechi pentru a evita duplicarea
+              messages.forEach(message => {
+                const messageElement = document.createElement("div");
+                messageElement.classList.add("message");
+
+                // Poziționare în funcție de sender
+                if (message.sender === currentUser) {
+                  messageElement.classList.add("right");
+                } else {
+                  messageElement.classList.add("left");
+                }
+
+                messageElement.textContent = `${message.sender}: ${message.content}`;
+                messagesContainer.appendChild(messageElement);
+              });
+            })
+            .catch(error => console.error("Failed to load messages:", error));
+  }
+
+  // Apelăm funcția după încărcarea paginii
+  window.onload = () => {
+    connect(); // Conectare WebSocket când pagina este încărcată
+    loadMessages(); // Încărcăm mesajele salvate
+  };
 </script>
 </body>
 </html>
