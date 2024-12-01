@@ -12,8 +12,10 @@ public class CookieConfig {
         DefaultCookieSerializer serializer = new DefaultCookieSerializer();
         serializer.setCookieName("remember-me");
         serializer.setUseHttpOnlyCookie(false); // Permite accesul prin JavaScript
-        serializer.setSameSite("Strict"); // Sau "Lax", în funcție de scenariu
         serializer.setUseSecureCookie(true); // Dacă folosești HTTPS
+
+
+
         return serializer;
     }
 }

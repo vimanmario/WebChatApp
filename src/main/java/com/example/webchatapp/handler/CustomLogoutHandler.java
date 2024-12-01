@@ -18,24 +18,21 @@ public class CustomLogoutHandler implements LogoutHandler {
 
     @Override
     public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
-        HttpSession session = request.getSession(false);
-        if (session != null) {
-            logger.info("Invalidating session with ID: " + session.getId());
-            session.invalidate();
-        }
-
-        // Șterge cookie-urile
         Cookie[] cookies = request.getCookies();
         if (cookies != null) {
             for (Cookie cookie : cookies) {
-                logger.info("Clearing cookie: " + cookie.getName());
-                cookie.setValue(null);
-                cookie.setPath("/");
-                cookie.setMaxAge(0);
-                response.addCookie(cookie); // Adaugă cookie-ul cu valoare goală
+                System.out.println("Processing cookie: " + cookie.getName() + ", value: " + cookie.getValue());
+                if ("remember-me".equals(cookie.getName())) {
+                    cookie.setValue(null);
+                    cookie.setPath("/");
+                    cookie.setMaxAge(0);
+                    cookie.setHttpOnly(false); // Testare
+                    response.addCookie(cookie);
+                    System.out.println("Cleared remember-me cookie.");
+                }
             }
+        } else {
+            System.out.println("No cookies found to process.");
         }
-
-        logger.info("Cookies after logout: " + Arrays.toString(request.getCookies()));
     }
 }

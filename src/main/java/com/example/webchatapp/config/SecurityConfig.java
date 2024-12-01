@@ -1,6 +1,8 @@
 package com.example.webchatapp.config;
 
+import com.example.webchatapp.filter.CookieCleanupFilter;
 import com.example.webchatapp.filter.NoCacheFilter;
+import com.example.webchatapp.filter.SameSiteCookieFilter;
 import com.example.webchatapp.filter.SessionDebugFilter;
 import com.example.webchatapp.handler.CustomLogoutHandler;
 import com.example.webchatapp.service.CustomRememberMeServices;
@@ -17,7 +19,9 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.logout.HeaderWriterLogoutHandler;
+import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.security.web.header.writers.ClearSiteDataHeaderWriter;
+import org.springframework.security.web.session.SessionManagementFilter;
 import org.springframework.web.filter.DelegatingFilterProxy;
 
 
@@ -27,10 +31,12 @@ public class SecurityConfig {
 
     private final UserService userService;
     private final PasswordEncoder passwordEncoder;
+    private final SameSiteCookieFilter sameSiteCookieFilter;
 
-    public SecurityConfig(UserService userService, PasswordEncoder passwordEncoder) {
+    public SecurityConfig(UserService userService, PasswordEncoder passwordEncoder, SameSiteCookieFilter sameSiteCookieFilter) {
         this.userService = userService;
         this.passwordEncoder = passwordEncoder;
+        this.sameSiteCookieFilter = sameSiteCookieFilter;
     }
 
     // incarcarea utilizatorului si validarea parolei folosind userService
@@ -56,7 +62,7 @@ public class SecurityConfig {
                 )
                 .logout(logout -> logout
                         .logoutUrl("/logout") // "perform_logout" sau "/logout"
-                        .logoutSuccessUrl("/login") // Redirectionare catre login dupa log-out
+                        .logoutSuccessUrl("/") // Redirectionare catre login dupa log-out , avea "/login inainte"
                         .invalidateHttpSession(true) // Invalidatează sesiunea
                         .clearAuthentication(true) // Șterge autentificarea
                         .deleteCookies("JSESSIONID", "remember-me")
@@ -69,17 +75,15 @@ public class SecurityConfig {
                         .rememberMeCookieName("remember-me") // Numele cookie-ului "remember me"
                         .rememberMeParameter("remember-me")
                         .useSecureCookie(true) // Pentru HTTPS
-                        //.tokenRepository(tokenRepository)
-                        //.userDetailsService(userDetailsService)
-                        //.rememberMeServices(new CustomRememberMeServices("uniqueAndSecretKey", userDetailsService, tokenRepository))
-
                 )
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
                         .maximumSessions(1)
                         .maxSessionsPreventsLogin(true)
                         .expiredUrl("/login?expired")
-                );
+                )
+                .addFilterBefore(sameSiteCookieFilter, SessionManagementFilter.class)
+                .addFilterBefore(new CookieCleanupFilter(), LogoutFilter.class);
 
         return http.build();
     }
