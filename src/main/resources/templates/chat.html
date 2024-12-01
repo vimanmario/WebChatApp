@@ -80,6 +80,11 @@
       background-color: #f1f1f1;
       text-align: left;
     }
+    .message-header {
+      font-weight: bold;
+      color: #4a90e2; /* Culoare diferită pentru numele utilizatorului */
+      margin-bottom: 5px;
+    }
     #input-container {
       display: flex;
       gap: 10px;
@@ -177,20 +182,36 @@
     const messageElement = document.createElement("div");
     messageElement.classList.add("message");
 
-    // Mesajele utilizatorului curent sunt poziționate la dreapta
+    const messagesContainer = document.getElementById("messages");
+
     if (sender === currentUser) {
+      // Mesajele utilizatorului curent nu afișează numele
       messageElement.classList.add("right");
+      const messageContent = document.createElement("div");
+      messageContent.textContent = message;
+      messageElement.appendChild(messageContent);
     } else {
+      // Mesajele altor utilizatori afișează numele ca header
       messageElement.classList.add("left");
+
+      const messageHeader = document.createElement("div");
+      messageHeader.classList.add("message-header");
+      messageHeader.textContent = sender;
+
+      const messageContent = document.createElement("div");
+      messageContent.textContent = message;
+
+      messageElement.appendChild(messageHeader);
+      messageElement.appendChild(messageContent);
     }
 
-    messageElement.textContent = `${sender}: ${message}`;
-    const messagesContainer = document.getElementById("messages");
     messagesContainer.appendChild(messageElement);
 
-    // Asigură-te că ultimul mesaj este vizibil
-    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    // Derulează automat la ultimul mesaj
+    scrollToBottom();
   }
+
+
 
   function logout() {
     console.log("Initiating logout"); // Debug 10
@@ -232,19 +253,36 @@
                 const messageElement = document.createElement("div");
                 messageElement.classList.add("message");
 
-                // Poziționare în funcție de sender
                 if (message.sender === currentUser) {
+                  // Mesajele utilizatorului curent nu afișează numele
                   messageElement.classList.add("right");
+                  const messageContent = document.createElement("div");
+                  messageContent.textContent = message.content;
+                  messageElement.appendChild(messageContent);
                 } else {
+                  // Mesajele altor utilizatori afișează numele ca header
                   messageElement.classList.add("left");
+
+                  const messageHeader = document.createElement("div");
+                  messageHeader.classList.add("message-header");
+                  messageHeader.textContent = message.sender;
+
+                  const messageContent = document.createElement("div");
+                  messageContent.textContent = message.content;
+
+                  messageElement.appendChild(messageHeader);
+                  messageElement.appendChild(messageContent);
                 }
 
-                messageElement.textContent = `${message.sender}: ${message.content}`;
                 messagesContainer.appendChild(messageElement);
               });
+
+              // Derulează automat la ultimul mesaj după ce toate sunt încărcate
+              scrollToBottom();
             })
             .catch(error => console.error("Failed to load messages:", error));
   }
+
 
   function searchMessages() {
     const query = document.getElementById("search-input").value.toLowerCase();
@@ -271,6 +309,11 @@
     message.removeEventListener("click", function () {
       deselectMessage(message);
     });
+  }
+
+  function scrollToBottom() {
+    const messagesContainer = document.getElementById("messages");
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
   }
 
   // Apelăm funcția după încărcarea paginii
