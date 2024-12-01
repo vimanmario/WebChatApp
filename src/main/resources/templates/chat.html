@@ -10,22 +10,51 @@
       font-family: Arial, sans-serif;
       display: flex;
       flex-direction: column;
-      align-items: center;
+      align-items: flex-end;
     }
     h1 {
       text-align: center;
     }
     #chat-container {
-      width: 60%;
-        max-width: 800px;
+      width: 80%;
+        max-width: 1100px;
       border: 1px solid #ccc;
       padding: 20px;
-      margin-top: 20px;
+      margin-top: 10px;
       border-radius: 8px;
       display: flex;
       flex-direction: column;
       gap: 10px;
+      box-sizing: border-box;
     }
+
+    #chat-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding:1px 10px;
+      border-bottom: 1px solid #ccc;
+    }
+    #chat-header h2 {
+      margin: 0;
+      font-size: 1em;
+      padding-top: 1px;
+    }
+    #search-container {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    #search-input {
+      padding: 5px;
+      font-size: 0.9em;
+    }
+    #search-button {
+      padding: 5px 10px;
+      font-size: 1em;
+      cursor: pointer;
+    }
+
     #messages {
       max-height: 550px;
       min-height: 550px;
@@ -60,7 +89,9 @@
       font-size: 1em;
     }
     #logout-button {
-      align-self: flex-end;
+      position: fixed; /* Poziționare fixă */
+      bottom: 10px;
+      left: 10px;
       padding: 10px 15px;
       border: none;
       border-radius: 5px;
@@ -68,7 +99,7 @@
       background-color: #f44336;
       color: white;
       font-size: 1em;
-      margin-top: 10px;
+      z-index: 1000; /* Asigurare deasupra altor elemente */
     }
   </style>
 </head>
@@ -76,6 +107,16 @@
 
 <!-- Container pentru chat -->
 <div id="chat-container">
+  <!-- Header-ul conversației -->
+  <div id="chat-header">
+    <h2>Conversatie Generala</h2>
+    <div id="search-container">
+      <input type="text" id="search-input" placeholder="Cauta mesaj...">
+      <button id="search-button" onclick="searchMessages()">🔍</button>
+    </div>
+  </div>
+
+  <!-- Container pentru mesaje -->
   <div id="messages"></div>
 
   <!-- Container pentru mesajul de intrare și butonul de trimitere -->
@@ -202,6 +243,18 @@
               });
             })
             .catch(error => console.error("Failed to load messages:", error));
+  }
+
+  function searchMessages() {
+    const query = document.getElementById("search-input").value.toLowerCase();
+    const messages = document.querySelectorAll("#messages .message");
+    messages.forEach(message => {
+      if (message.textContent.toLowerCase().includes(query)) {
+        message.style.backgroundColor = "#ffffcc"; // Evidențiere mesaj
+      } else {
+        message.style.backgroundColor = ""; // Resetare
+      }
+    });
   }
 
   // Apelăm funcția după încărcarea paginii
