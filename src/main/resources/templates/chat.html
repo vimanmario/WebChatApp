@@ -28,6 +28,20 @@
       box-sizing: border-box;
     }
 
+    #new-conversation-button {
+      position: fixed;
+      bottom: 10px;
+      right: 1150px; /* Mai mult spre stânga decât logout */
+      padding: 10px 15px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      background-color: #4CAF50;
+      color: white;
+      font-size: 1.2em;
+      z-index: 1000;
+    }
+
     #chat-header {
       display: flex;
       justify-content: space-between;
@@ -132,14 +146,14 @@
   </div>
 </div>
 
+<!-- Buton pentru crearea unei noi conversații -->
+<button id="new-conversation-button" onclick="createNewConversation()">➕</button>
 <!-- Buton de logout -->
 <button id="logout-button" onclick="logout()">Logout</button>
 
 <script>
   let stompClient = null;
   let currentUser = null; // Va fi setat după ce obținem numele utilizatorului curent.
-
-  let currentConversationId = 1; // Conversația implicită
 
   function connect() {
     // Obține numele utilizatorului curent
@@ -164,8 +178,6 @@
         const parsedMessage = JSON.parse(message.body);
         showMessage(parsedMessage.content, parsedMessage.sender);
       });
-
-      loadMessages(currentConversationId); // Încărcăm mesajele salvate
     });
   }
 
@@ -176,8 +188,7 @@
     if (messageContent && stompClient) {
       stompClient.send("/app/chat.sendMessage", {}, JSON.stringify({
         content: messageContent,
-        sender: currentUser,
-        conversationId: currentConversationId // Include ID-ul conversației curente
+        sender: currentUser // Trimitem și numele sau ID-ul utilizatorului curent
       }));
       messageInput.value = '';
     }
@@ -248,23 +259,24 @@
 
   }
 
-  function loadMessages(conversationId) {
-    fetch(`/api/messages/${conversationId}`)
+  function loadMessages() {
+    fetch('/api/messages')
             .then(response => response.json())
             .then(messages => {
               const messagesContainer = document.getElementById("messages");
-              messagesContainer.innerHTML = ""; // Curăță mesajele vechi
-
+              messagesContainer.innerHTML = ""; // Curăță mesajele vechi pentru a evita duplicarea
               messages.forEach(message => {
                 const messageElement = document.createElement("div");
                 messageElement.classList.add("message");
 
                 if (message.sender === currentUser) {
+                  // Mesajele utilizatorului curent nu afișează numele
                   messageElement.classList.add("right");
                   const messageContent = document.createElement("div");
                   messageContent.textContent = message.content;
                   messageElement.appendChild(messageContent);
                 } else {
+                  // Mesajele altor utilizatori afișează numele ca header
                   messageElement.classList.add("left");
 
                   const messageHeader = document.createElement("div");
@@ -281,7 +293,8 @@
                 messagesContainer.appendChild(messageElement);
               });
 
-              scrollToBottom(); // Derulează automat la ultimul mesaj
+              // Derulează automat la ultimul mesaj după ce toate sunt încărcate
+              scrollToBottom();
             })
             .catch(error => console.error("Failed to load messages:", error));
   }
@@ -319,9 +332,22 @@
     messagesContainer.scrollTop = messagesContainer.scrollHeight;
   }
 
+  function createNewConversation() {
+    alert("Funcționalitatea de creare a unei noi conversații nu este încă implementată!");
+  }
+
+  function selectConversation(conversationId) {
+    if (conversationId === 'general') {
+      alert('Ați selectat conversația generală!');
+      // În viitor, putem popula chat-ul cu mesaje specifice conversației selectate.
+    }
+  }
+
+
   // Apelăm funcția după încărcarea paginii
   window.onload = () => {
     connect(); // Conectare WebSocket când pagina este încărcată
+    loadMessages(); // Încărcăm mesajele salvate
   };
 </script>
 </body>
