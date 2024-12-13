@@ -24,38 +24,40 @@ public class ChatMessageController {
     @MessageMapping("/chat.sendMessage")
     @SendTo("/topic/public")
     public String sendMessage(String messageJson) {
-        // Parsează JSON-ul pentru a extrage `sender` și `content`
-        String sender = "Anonymous"; // Default în cazul unui fallback
-        String content = messageJson;
+        String sender = "Anonymous";
+        String content = "";
+        Long conversationId = null;
 
         try {
-            // Transformă stringul JSON într-un obiect
+            // Transformă JSON-ul într-un obiect
             ObjectMapper objectMapper = new ObjectMapper();
             ObjectNode messageNode = (ObjectNode) objectMapper.readTree(messageJson);
+
             sender = messageNode.get("sender").asText();
             content = messageNode.get("content").asText();
+            conversationId = messageNode.get("conversationId").asLong(); // Extrage ID-ul conversației
 
             // Salvăm mesajul în baza de date
-            messageService.saveMessage(sender, content);
+            messageService.saveMessage(conversationId, sender, content);
 
-            // Adaugăm sender și content într-un nou JSON pentru client
+            // Pregătim răspunsul
             ObjectNode response = objectMapper.createObjectNode();
             response.put("sender", sender);
             response.put("content", content);
+            response.put("conversationId", conversationId);
 
             return response.toString();
         } catch (Exception e) {
             System.err.println("Failed to process message: " + e.getMessage());
             return "{\"sender\": \"Error\", \"content\": \"Message failed\"}";
         }
-
     }
 
     // Metoda care trimite toate mesajele salvate la încărcarea aplicației
-    @MessageMapping("/chat.loadMessages")
+    @MessageMapping("/chat.loadMessagesByConversation")
     @SendTo("/topic/public")
-    public List<Message> loadMessages() {
-        return messageService.getAllMessages();
+    public List<Message> loadMessagesByConversation(Long conversationId) {
+        return messageService.getMessagesByConversation(conversationId);
     }
 }
 

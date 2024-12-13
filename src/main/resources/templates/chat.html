@@ -139,6 +139,8 @@
   let stompClient = null;
   let currentUser = null; // Va fi setat după ce obținem numele utilizatorului curent.
 
+  let currentConversationId = 1; // Conversația implicită
+
   function connect() {
     // Obține numele utilizatorului curent
     fetch('/api/current-user') // Endpoint care returnează utilizatorul curent
@@ -162,6 +164,8 @@
         const parsedMessage = JSON.parse(message.body);
         showMessage(parsedMessage.content, parsedMessage.sender);
       });
+
+      loadMessages(currentConversationId); // Încărcăm mesajele salvate
     });
   }
 
@@ -172,7 +176,8 @@
     if (messageContent && stompClient) {
       stompClient.send("/app/chat.sendMessage", {}, JSON.stringify({
         content: messageContent,
-        sender: currentUser // Trimitem și numele sau ID-ul utilizatorului curent
+        sender: currentUser,
+        conversationId: currentConversationId // Include ID-ul conversației curente
       }));
       messageInput.value = '';
     }
@@ -243,24 +248,23 @@
 
   }
 
-  function loadMessages() {
-    fetch('/api/messages')
+  function loadMessages(conversationId) {
+    fetch(`/api/messages/${conversationId}`)
             .then(response => response.json())
             .then(messages => {
               const messagesContainer = document.getElementById("messages");
-              messagesContainer.innerHTML = ""; // Curăță mesajele vechi pentru a evita duplicarea
+              messagesContainer.innerHTML = ""; // Curăță mesajele vechi
+
               messages.forEach(message => {
                 const messageElement = document.createElement("div");
                 messageElement.classList.add("message");
 
                 if (message.sender === currentUser) {
-                  // Mesajele utilizatorului curent nu afișează numele
                   messageElement.classList.add("right");
                   const messageContent = document.createElement("div");
                   messageContent.textContent = message.content;
                   messageElement.appendChild(messageContent);
                 } else {
-                  // Mesajele altor utilizatori afișează numele ca header
                   messageElement.classList.add("left");
 
                   const messageHeader = document.createElement("div");
@@ -277,8 +281,7 @@
                 messagesContainer.appendChild(messageElement);
               });
 
-              // Derulează automat la ultimul mesaj după ce toate sunt încărcate
-              scrollToBottom();
+              scrollToBottom(); // Derulează automat la ultimul mesaj
             })
             .catch(error => console.error("Failed to load messages:", error));
   }
@@ -319,7 +322,6 @@
   // Apelăm funcția după încărcarea paginii
   window.onload = () => {
     connect(); // Conectare WebSocket când pagina este încărcată
-    loadMessages(); // Încărcăm mesajele salvate
   };
 </script>
 </body>
