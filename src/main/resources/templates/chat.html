@@ -10,43 +10,96 @@
       font-family: Arial, sans-serif;
       display: flex;
       flex-direction: column;
-      align-items: flex-end;
+      margin: 0;
+      padding: 0;
     }
     h1 {
       text-align: center;
     }
+    #main-container {
+      display: flex;
+      height: 100vh;
+      width: 100%;
+      margin: 0;
+      box-sizing: border-box;
+    }
+    /* Sidebar pentru butoane */
+    #sidebar {
+      width: 80px; /* Lățime fixă pentru sidebar */
+      background-color: #2c3e50;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 0;
+      box-sizing: border-box;
+    }
+    #sidebar button {
+      width: 60px;
+      height: 60px;
+      margin: 10px 0;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      color: white;
+      font-size: 0.9em;
+    }
+    #logout-button {
+      background-color: #e74c3c;
+    }
+    #new-conversation-button {
+      background-color: #27ae60;
+    }
+    /* Containerul pentru lista de conversații */
+    #conversations-container {
+      width: 25%;
+      max-width: 300px;
+      background-color: #f7f7f7;
+      border-right: 1px solid #ccc;
+      padding: 10px;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #conversations-container h3 {
+      margin: 0;
+      font-size: 1.2em;
+      text-align: center;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #ccc;
+    }
+    #conversations-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    #conversations-list li {
+      padding: 10px;
+      cursor: pointer;
+      border-radius: 5px;
+      transition: background-color 0.2s ease;
+    }
+    #conversations-list li:hover {
+      background-color: #e6e6e6;
+    }
+    /* Containerul pentru chat */
     #chat-container {
-      width: 80%;
-        max-width: 1100px;
+      flex-grow: 1;
       border: 1px solid #ccc;
       padding: 20px;
-      margin-top: 10px;
+      margin: 0;
       border-radius: 8px;
       display: flex;
       flex-direction: column;
       gap: 10px;
       box-sizing: border-box;
     }
-
-    #new-conversation-button {
-      position: fixed;
-      bottom: 10px;
-      right: 1150px; /* Mai mult spre stânga decât logout */
-      padding: 10px 15px;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      background-color: #4CAF50;
-      color: white;
-      font-size: 1.2em;
-      z-index: 1000;
-    }
-
     #chat-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding:1px 10px;
+      padding: 1px 10px;
       border-bottom: 1px solid #ccc;
     }
     #chat-header h2 {
@@ -54,21 +107,6 @@
       font-size: 1em;
       padding-top: 1px;
     }
-    #search-container {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-    }
-    #search-input {
-      padding: 5px;
-      font-size: 0.9em;
-    }
-    #search-button {
-      padding: 5px 10px;
-      font-size: 1em;
-      cursor: pointer;
-    }
-
     #messages {
       max-height: 550px;
       min-height: 550px;
@@ -82,7 +120,7 @@
       padding: 10px;
       border-radius: 10px;
       max-width: 70%;
-      transition: background-color 0.3s ease; /* Animație ușoară pentru schimbarea culorii */
+      transition: background-color 0.3s ease;
     }
     .message.right {
       align-self: flex-end;
@@ -96,7 +134,7 @@
     }
     .message-header {
       font-weight: bold;
-      color: #4a90e2; /* Culoare diferită pentru numele utilizatorului */
+      color: #4a90e2;
       margin-bottom: 5px;
     }
     #input-container {
@@ -108,48 +146,45 @@
       padding: 10px;
       font-size: 1em;
     }
-    #logout-button {
-      position: fixed; /* Poziționare fixă */
-      bottom: 10px;
-      left: 10px;
-      padding: 10px 15px;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      background-color: #f44336;
-      color: white;
-      font-size: 1em;
-      z-index: 1000; /* Asigurare deasupra altor elemente */
-    }
   </style>
 </head>
 <body>
+<div id="main-container">
+  <!-- Sidebar-ul pentru butoane -->
+  <div id="sidebar">
+    <button id="new-conversation-button" onclick="createNewConversation()">➕</button>
+    <button id="logout-button" onclick="logout()">🚪</button>
+  </div>
 
-<!-- Container pentru chat -->
-<div id="chat-container">
-  <!-- Header-ul conversației -->
-  <div id="chat-header">
-    <h2>Conversatie Generala</h2>
-    <div id="search-container">
-      <input type="text" id="search-input" placeholder="Cauta mesaj...">
-      <button id="search-button" onclick="searchMessages()">🔍</button>
+  <!-- Container pentru conversații -->
+  <div id="conversations-container">
+    <h3>Conversațiile mele</h3>
+    <ul id="conversations-list">
+      <li onclick="selectConversation('general')">Conversație Generală</li>
+    </ul>
+  </div>
+
+  <!-- Container pentru chat -->
+  <div id="chat-container">
+    <!-- Header-ul conversației -->
+    <div id="chat-header">
+      <h2>Conversație Generală</h2>
+      <div id="search-container">
+        <input type="text" id="search-input" placeholder="Caută mesaj...">
+        <button id="search-button" onclick="searchMessages()">🔍</button>
+      </div>
+    </div>
+
+    <!-- Container pentru mesaje -->
+    <div id="messages"></div>
+
+    <!-- Container pentru mesajul de intrare și butonul de trimitere -->
+    <div id="input-container">
+      <input type="text" id="messageInput" placeholder="Type your message...">
+      <button onclick="sendMessage()">Send</button>
     </div>
   </div>
-
-  <!-- Container pentru mesaje -->
-  <div id="messages"></div>
-
-  <!-- Container pentru mesajul de intrare și butonul de trimitere -->
-  <div id="input-container">
-    <input type="text" id="messageInput" placeholder="Type your message...">
-    <button onclick="sendMessage()">Send</button>
-  </div>
 </div>
-
-<!-- Buton pentru crearea unei noi conversații -->
-<button id="new-conversation-button" onclick="createNewConversation()">➕</button>
-<!-- Buton de logout -->
-<button id="logout-button" onclick="logout()">Logout</button>
 
 <script>
   let stompClient = null;
