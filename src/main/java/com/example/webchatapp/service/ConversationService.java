@@ -1,6 +1,7 @@
 package com.example.webchatapp.service;
 
 import com.example.webchatapp.model.Conversation;
+import com.example.webchatapp.model.User;
 import com.example.webchatapp.repository.ConversationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,8 +18,12 @@ public class ConversationService {
         this.conversationRepository = conversationRepository;
     }
 
-    public Conversation createConversation(String name, boolean isGeneral) {
-        Conversation conversation = new Conversation(name, isGeneral);
+    public Conversation createConversation(String name, boolean isGeneral, List<User> participants) {
+        if (!isGeneral && participants == null) {
+            throw new IllegalArgumentException("O conversație privată trebuie să aibă participanți!");
+        }
+
+        Conversation conversation = new Conversation(name, isGeneral, participants);
         return conversationRepository.save(conversation);
     }
 

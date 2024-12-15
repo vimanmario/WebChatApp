@@ -150,9 +150,24 @@
 </head>
 <body>
 <div id="main-container">
+
+  <!-- Modal pentru selectarea utilizatorului -->
+  <div id="selectUserModel" style="display: none;">
+    <div style="background-color: rgba(0, 0, 0, 0.7); position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1000;">
+      <div style="position: relative; margin: 50px auto; padding: 20px; background-color: white; width: 300px; border-radius: 8px;">
+        <h3>Selectează utilizatorul pentru conversația privată</h3>
+        <ul id="user-list">
+          <!-- Lista utilizatorilor va fi generată dinamic aici -->
+        </ul>
+        <button onclick="closeSelectUserModel()">Închide</button>
+      </div>
+    </div>
+  </div>
+
+
   <!-- Sidebar-ul pentru butoane -->
   <div id="sidebar">
-    <button id="new-conversation-button" onclick="createNewConversation()">➕</button>
+    <button id="new-conversation-button" onclick="openSelectUserModel()">➕</button>
     <button id="logout-button" onclick="logout()">🚪</button>
   </div>
 
@@ -364,13 +379,74 @@
     messagesContainer.scrollTop = messagesContainer.scrollHeight;
   }
 
-  function createNewConversation() {
-    alert("Funcționalitatea de creare a unei noi conversații nu este încă implementată!");
+  // Funcție pentru a deschide modalul de selecție a utilizatorului
+  function openSelectUserModel() {
+    document.getElementById("selectUserModel").style.display = "block";
+
+    // Încarcă lista de utilizatori dinamic
+    loadUserList();
   }
+
+  // Funcție pentru a încărca lista de utilizatori
+  function loadUserList() {
+    // Exemplu de cerere pentru a obține utilizatorii disponibili
+    fetch('/api/users') // Endpoint care returnează utilizatorii
+            .then(response => response.json())
+            .then(users => {
+              const userListElement = document.getElementById("user-list");
+              userListElement.innerHTML = ""; // Curăță lista existentă
+
+              users.forEach(user => {
+                const li = document.createElement("li");
+                li.textContent = user.username;
+                li.onclick = () => createNewConversation(user);
+                userListElement.appendChild(li);
+              });
+            })
+            .catch(error => console.error("Failed to load users:", error));
+  }
+
+  function createNewConversation(user) {
+    const conversationData = {
+      name: `Conversație privată cu ${user.username}`,
+      isGeneral: false,
+      participantIds: [currentUserId, user.id] // ID-ul utilizatorului curent și ID-ul utilizatorului selectat
+    };
+
+    fetch('/api/conversations', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(conversationData)
+    })
+            .then(response => response.json())
+            .then(conversation => {
+              // Adăugăm conversația privată în lista de conversații
+              addConversationToSidebar(conversation);
+
+              // Închidem modalul
+              closeSelectUserModel();
+            })
+            .catch(error => console.error('Failed to create private conversation:', error));
+  }
+
 
   function selectConversation(conversationId) {
     currentConversationId = conversationId; // Actualizează ID-ul conversației curente
     loadMessages(conversationId); // Încarcă mesajele pentru această conversație
+  }
+
+  function closeSelectUserModel() {
+    document.getElementById("selectUserModel").style.display = "none";
+  }
+
+  function addConversationToSidebar(conversation) {
+    const conversationList = document.getElementById("conversations-list");
+    const listItem = document.createElement("li");
+    listItem.textContent = conversation.name;
+    listItem.onclick = () => selectConversation(conversation.id); // La click se schimbă conversația
+    conversationList.appendChild(listItem);
   }
 
 

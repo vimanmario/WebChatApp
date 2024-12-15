@@ -12,10 +12,17 @@ public class Conversation {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private String name; // Numele conversației (e.g., "General", "Private-User1-User2")
-
     private boolean isGeneral; // Flag pentru conversația generală
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "conversation_participants",
+            joinColumns = @JoinColumn(name = "conversation_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
+    private List<User> participants; // Lista utilizatorilor (doar pentru conversațiile private)
+
 
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "conversation")
     @JsonManagedReference // Previne recursivitatea
@@ -24,9 +31,12 @@ public class Conversation {
     // Constructori, getter și setter
     public Conversation() {}
 
-    public Conversation(String name, boolean isGeneral) {
+    public Conversation(String name, boolean isGeneral, List<User> participants) {
         this.name = name;
         this.isGeneral = isGeneral;
+        if (!isGeneral) {
+            this.participants = participants;
+        }
     }
 
     public Long getId() {
@@ -51,6 +61,14 @@ public class Conversation {
 
     public void setGeneral(boolean general) {
         isGeneral = general;
+    }
+
+    public List<User> getParticipants() {
+        return participants;
+    }
+
+    public void setParticipants(List<User> participants) {
+        this.participants = participants;
     }
 
     public List<Message> getMessages() {
