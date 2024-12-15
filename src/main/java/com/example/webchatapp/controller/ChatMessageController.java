@@ -26,25 +26,29 @@ public class ChatMessageController {
     public String sendMessage(String messageJson) {
         String sender = "Anonymous";
         String content = "";
-        Long conversationId = null;
+        Long conversationId = 1L; // Conversația generală implicită
 
         try {
-            // Transformă JSON-ul într-un obiect
+            // Transformăm JSON-ul într-un obiect
             ObjectMapper objectMapper = new ObjectMapper();
             ObjectNode messageNode = (ObjectNode) objectMapper.readTree(messageJson);
 
             sender = messageNode.get("sender").asText();
             content = messageNode.get("content").asText();
-            conversationId = messageNode.get("conversationId").asLong(); // Extrage ID-ul conversației
+            if (messageNode.has("conversationId")) {
+                conversationId = messageNode.get("conversationId").asLong(); // Extragem ID-ul conversației
+            }
 
-            // Salvăm mesajul în baza de date
-            messageService.saveMessage(conversationId, sender, content);
+            // Salvăm mesajul în baza de date folosind `MessageService`
+            Message savedMessage = messageService.saveMessage(conversationId, sender, content);
 
-            // Pregătim răspunsul
+            // Pregătim răspunsul pentru a-l trimite pe `/topic/public`
             ObjectNode response = objectMapper.createObjectNode();
-            response.put("sender", sender);
-            response.put("content", content);
+            response.put("id", savedMessage.getId());
+            response.put("sender", savedMessage.getSender());
+            response.put("content", savedMessage.getContent());
             response.put("conversationId", conversationId);
+            response.put("timestamp", savedMessage.getTimestamp().toString());
 
             return response.toString();
         } catch (Exception e) {
@@ -57,7 +61,11 @@ public class ChatMessageController {
     @MessageMapping("/chat.loadMessagesByConversation")
     @SendTo("/topic/public")
     public List<Message> loadMessagesByConversation(Long conversationId) {
+        if (conversationId == null) {
+            conversationId = 1L; // Implicit conversația generală
+        }
         return messageService.getMessagesByConversation(conversationId);
     }
+
 }
 

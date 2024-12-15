@@ -45,7 +45,7 @@
       font-size: 0.9em;
     }
     #logout-button {
-      background-color: #e74c3c;
+      background-color: #27ae60;
     }
     #new-conversation-button {
       background-color: #27ae60;
@@ -189,6 +189,7 @@
 <script>
   let stompClient = null;
   let currentUser = null; // Va fi setat după ce obținem numele utilizatorului curent.
+  let currentConversationId = 1;
 
   function connect() {
     // Obține numele utilizatorului curent
@@ -206,13 +207,14 @@
     stompClient = Stomp.over(socket);
 
     stompClient.connect({}, function (frame) {
-      console.log('Connected: ' + frame);
-
-      // Abonare la topicul public pentru a primi mesaje
+      console.log('Connected: ' + frame); // Debug
       stompClient.subscribe('/topic/public', function (message) {
         const parsedMessage = JSON.parse(message.body);
+        console.log('Received message:', parsedMessage); // Debug
         showMessage(parsedMessage.content, parsedMessage.sender);
       });
+    }, function (error) {
+      console.error('WebSocket connection failed:', error); // Debug
     });
   }
 
@@ -221,13 +223,18 @@
     const messageContent = messageInput.value.trim();
 
     if (messageContent && stompClient) {
-      stompClient.send("/app/chat.sendMessage", {}, JSON.stringify({
+      console.log('Sending message:', messageContent); // Debug
+      stompClient.send(`/app/chat.sendMessage`, {}, JSON.stringify({
         content: messageContent,
-        sender: currentUser // Trimitem și numele sau ID-ul utilizatorului curent
+        sender: currentUser,
+        conversationId: currentConversationId || 1
       }));
       messageInput.value = '';
+    } else {
+      console.error('Message not sent. Check WebSocket connection or empty input.'); // Debug
     }
   }
+
 
   function showMessage(message, sender) {
     const messageElement = document.createElement("div");
@@ -294,8 +301,8 @@
 
   }
 
-  function loadMessages() {
-    fetch('/api/messages')
+  function loadMessages(conversationId = 1) { // Conversația generală implicită
+    fetch(`/api/messages/${conversationId}`)
             .then(response => response.json())
             .then(messages => {
               const messagesContainer = document.getElementById("messages");
@@ -305,35 +312,25 @@
                 messageElement.classList.add("message");
 
                 if (message.sender === currentUser) {
-                  // Mesajele utilizatorului curent nu afișează numele
                   messageElement.classList.add("right");
-                  const messageContent = document.createElement("div");
-                  messageContent.textContent = message.content;
-                  messageElement.appendChild(messageContent);
                 } else {
-                  // Mesajele altor utilizatori afișează numele ca header
                   messageElement.classList.add("left");
-
                   const messageHeader = document.createElement("div");
                   messageHeader.classList.add("message-header");
                   messageHeader.textContent = message.sender;
-
-                  const messageContent = document.createElement("div");
-                  messageContent.textContent = message.content;
-
                   messageElement.appendChild(messageHeader);
-                  messageElement.appendChild(messageContent);
                 }
 
+                const messageContent = document.createElement("div");
+                messageContent.textContent = message.content;
+                messageElement.appendChild(messageContent);
                 messagesContainer.appendChild(messageElement);
               });
 
-              // Derulează automat la ultimul mesaj după ce toate sunt încărcate
               scrollToBottom();
             })
             .catch(error => console.error("Failed to load messages:", error));
   }
-
 
   function searchMessages() {
     const query = document.getElementById("search-input").value.toLowerCase();
@@ -372,10 +369,8 @@
   }
 
   function selectConversation(conversationId) {
-    if (conversationId === 'general') {
-      alert('Ați selectat conversația generală!');
-      // În viitor, putem popula chat-ul cu mesaje specifice conversației selectate.
-    }
+    currentConversationId = conversationId; // Actualizează ID-ul conversației curente
+    loadMessages(conversationId); // Încarcă mesajele pentru această conversație
   }
 
 
