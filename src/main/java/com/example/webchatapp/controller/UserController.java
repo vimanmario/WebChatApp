@@ -13,6 +13,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api")
@@ -32,11 +33,21 @@ public class UserController {
     }
 
     @GetMapping("/users")
-    public List<User> getUsers() {
+    public List<User> getUsers(Authentication authentication) {
         try {
-            return userService.getAllUsers();
+            if (authentication == null || !authentication.isAuthenticated()) {
+                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not authenticated");
+            }
+
+            String username = authentication.getName();  // Obține utilizatorul curent
+            List<User> allUsers = userService.getAllUsers();  // Obține toți utilizatorii
+
+            // Filtrează utilizatorul curent
+            return allUsers.stream()
+                    .filter(user -> !user.getUsername().equals(username))  // Exclude utilizatorul curent
+                    .collect(Collectors.toList());
         } catch (Exception e) {
-            e.printStackTrace(); // Sau loghează într-un fișier de log
+            e.printStackTrace();
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to load users", e);
         }
     }

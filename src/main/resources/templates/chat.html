@@ -389,22 +389,34 @@
 
   // Funcție pentru a încărca lista de utilizatori
   function loadUserList() {
-    // Exemplu de cerere pentru a obține utilizatorii disponibili
-    fetch('/api/users') // Endpoint care returnează utilizatorii
+    // Obține utilizatorul curent
+    fetch('/api/current-user') // Endpoint care returnează utilizatorul curent
             .then(response => response.json())
-            .then(users => {
-              const userListElement = document.getElementById("user-list");
-              userListElement.innerHTML = ""; // Curăță lista existentă
+            .then(data => {
+              const currentUser = data.username;  // Numele utilizatorului curent
 
-              users.forEach(user => {
-                const li = document.createElement("li");
-                li.textContent = user.username;
-                li.onclick = () => createNewConversation(user);
-                userListElement.appendChild(li);
-              });
+              // Cerere pentru a obține lista de utilizatori
+              fetch('/api/users') // Endpoint care returnează utilizatorii
+                      .then(response => response.json())
+                      .then(users => {
+                        const userListElement = document.getElementById("user-list");
+                        userListElement.innerHTML = ""; // Curăță lista existentă
+
+                        // Adaugă utilizatorii care nu sunt utilizatorul curent
+                        users.forEach(user => {
+                          if (user.username !== currentUser) { // Filtrăm utilizatorul curent
+                            const li = document.createElement("li");
+                            li.textContent = user.username;
+                            li.onclick = () => createNewConversation(user);
+                            userListElement.appendChild(li);
+                          }
+                        });
+                      })
+                      .catch(error => console.error("Failed to load users:", error));
             })
-            .catch(error => console.error("Failed to load users:", error));
+            .catch(error => console.error("Failed to fetch current user:", error));
   }
+
 
   function createNewConversation(user) {
     const conversationData = {
