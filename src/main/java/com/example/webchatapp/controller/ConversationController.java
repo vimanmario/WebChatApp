@@ -58,10 +58,11 @@ public class ConversationController {
                 .body(createdConversation);
     }
 
-    @GetMapping("/conversations")
-    public ResponseEntity<List<Conversation>> getAllConversations() {
+    // Endpoint pentru a obține doar conversațiile relevante pentru un utilizator
+    @GetMapping("/conversations/user/{userId}")
+    public ResponseEntity<List<Conversation>> getUserConversations(@PathVariable Long userId) {
         try {
-            List<Conversation> conversations = conversationRepository.findAll();
+            List<Conversation> conversations = conversationRepository.findByUserId(userId);  // Filtrăm după ID-ul utilizatorului
             if (conversations.isEmpty()) {
                 return ResponseEntity.noContent().build();
             }

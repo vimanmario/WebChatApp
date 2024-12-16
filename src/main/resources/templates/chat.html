@@ -205,6 +205,7 @@
 <script>
   let stompClient = null;
   let currentUser = null; // Va fi setat după ce obținem numele utilizatorului curent.
+  let currentUserId = null;
   let currentConversationId = 1;
 
   function connect() {
@@ -215,6 +216,7 @@
               currentUser = data.username; // Setăm numele utilizatorului
               currentUserId = data.id;
               initializeWebSocket();
+              loadConversations()
             })
             .catch(error => console.error('Failed to fetch current user:', error));
   }
@@ -470,10 +472,24 @@
   }
 
   function loadConversations() {
-    fetch('/api/conversations')
+    if (currentUserId === null) {
+      console.log("currentUserId not yet set. Waiting...");
+      return;
+    }
+
+    // Încarcă conversația generală
+    fetch(`/api/conversations/general`)
+            .then(response => response.json())
+            .then(conversation => {
+              conversation.name = "General";
+              addConversationToSidebar(conversation);
+            })
+            .catch(error => console.error('Failed to load general conversation:', error));
+
+    fetch(`/api/conversations/user/${currentUserId}`)
             .then(response => response.json())
             .then(conversations => {
-              console.log(conversations); // Adăugăm un log pentru a inspecta datele
+              console.log(conversations); // Verifică datele în consolă
               if (Array.isArray(conversations)) {
                 conversations.forEach(conversation => {
                   addConversationToSidebar(conversation);
@@ -485,14 +501,10 @@
             .catch(error => console.error('Failed to load conversations:', error));
   }
 
-
-
-
   // Apelăm funcția după încărcarea paginii
   window.onload = () => {
     connect(); // Conectare WebSocket când pagina este încărcată
     loadMessages(); // Încărcăm mesajele salvate
-    loadConversations()
   };
 </script>
 </body>

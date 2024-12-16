@@ -31,10 +31,16 @@ public class ConversationService {
         return conversationRepository.findAll();
     }
 
+    public List<Conversation> getUserConversations(Long userId) {
+        // Filtrăm conversațiile la care utilizatorul este participant
+        return conversationRepository.findByUserId(userId);
+    }
+
     public Conversation getConversationById(Long id) {
         return conversationRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Conversația nu există!"));
     }
+
 
     public boolean existsBetweenUsers(Long user1, Long user2) {
         // Verificăm dacă există o conversație între user1 și user2
