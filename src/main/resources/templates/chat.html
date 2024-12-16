@@ -175,7 +175,7 @@
   <div id="conversations-container">
     <h3>Conversațiile mele</h3>
     <ul id="conversations-list">
-      <li onclick="selectConversation('general')">Conversație Generală</li>
+
     </ul>
   </div>
 
@@ -456,17 +456,43 @@
 
   function addConversationToSidebar(conversation) {
     const conversationList = document.getElementById("conversations-list");
+
+    // Verificăm dacă conversația nu există deja în listă
+    const existingItem = Array.from(conversationList.children).find(item => item.textContent === conversation.name);
+    if (existingItem) {
+      return; // Dacă există deja, nu facem nimic
+    }
+
     const listItem = document.createElement("li");
     listItem.textContent = conversation.name;
     listItem.onclick = () => selectConversation(conversation.id); // La click se schimbă conversația
     conversationList.appendChild(listItem);
   }
 
+  function loadConversations() {
+    fetch('/api/conversations')
+            .then(response => response.json())
+            .then(conversations => {
+              console.log(conversations); // Adăugăm un log pentru a inspecta datele
+              if (Array.isArray(conversations)) {
+                conversations.forEach(conversation => {
+                  addConversationToSidebar(conversation);
+                });
+              } else {
+                console.error('Răspunsul de la /api/conversations nu este un array!', conversations);
+              }
+            })
+            .catch(error => console.error('Failed to load conversations:', error));
+  }
+
+
+
 
   // Apelăm funcția după încărcarea paginii
   window.onload = () => {
     connect(); // Conectare WebSocket când pagina este încărcată
     loadMessages(); // Încărcăm mesajele salvate
+    loadConversations()
   };
 </script>
 </body>

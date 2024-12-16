@@ -53,9 +53,10 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/register", "/login", "/css/**", "/js/**").permitAll()
+                        .requestMatchers("/register", "/login", "/css/**", "/js/**","/api/conversations").permitAll()
                         .requestMatchers("/chat").authenticated()
-                        .requestMatchers(HttpMethod.POST, "/api/conversations").authenticated()
+                        //.requestMatchers(HttpMethod.POST, "/api/conversations").authenticated()
+                        //.requestMatchers(HttpMethod.GET, "/api/conversations").authenticated()
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form

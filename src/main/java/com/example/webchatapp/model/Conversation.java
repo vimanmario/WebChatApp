@@ -15,7 +15,7 @@ public class Conversation {
     private String name; // Numele conversației (e.g., "General", "Private-User1-User2")
     private boolean isGeneral; // Flag pentru conversația generală
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "conversation_participants",
             joinColumns = @JoinColumn(name = "conversation_id"),
