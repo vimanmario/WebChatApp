@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/conversations")
@@ -24,23 +26,26 @@ public class ConversationController {
     }
 
     @PostMapping
-    public Conversation createConversation(@RequestParam String name,
-                                           @RequestParam boolean isGeneral,
-                                           @RequestParam(required = false) List<Long> participantIds) {
-        // Dacă este o conversație privată, obținem utilizatorii pe baza IDs
-        List<User> participants = new ArrayList<>();
+    public Conversation createConversation(@RequestBody Map<String, Object> requestData) {
+        String name = (String) requestData.get("name");
+        boolean isGeneral = (boolean) requestData.get("isGeneral");
 
-        if (!isGeneral && participantIds != null) {
-            // Căutăm utilizatorii din baza de date folosind serviciul UserService
-            for (Long participantId : participantIds) {
-                User user = userService.getUserById(participantId); // Îți propun să adaugi metoda getUserById în UserService
-                participants.add(user);
-            }
+        // Convertim participantIds în List<Long>
+        List<Long> participantIds = ((List<Integer>) requestData.get("participantIds"))
+                .stream()
+                .map(Integer::longValue) // Convertim Integer la Long
+                .collect(Collectors.toList());
+
+        List<User> participants = new ArrayList<>();
+        if (!isGeneral) {
+            participants = participantIds.stream()
+                    .map(userService::getUserById)
+                    .collect(Collectors.toList());
         }
 
-        // Creăm și salvăm conversația
         return conversationService.createConversation(name, isGeneral, participants);
     }
+
 
     @GetMapping
     public List<Conversation> getAllConversations() {

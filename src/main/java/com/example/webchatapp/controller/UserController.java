@@ -29,7 +29,18 @@ public class UserController {
         }
 
         String username = authentication.getName(); // Obține numele utilizatorului autentificat.
-        return ResponseEntity.ok(Map.of("username", username));
+
+        // Folosim UserService pentru a obține utilizatorul curent
+        User currentUser = userService.findByUsername(username);
+        if (currentUser == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+        }
+
+        // Returnăm un obiect JSON cu id și username
+        return ResponseEntity.ok(Map.of(
+                "id", currentUser.getId(),
+                "username", currentUser.getUsername()
+        ));
     }
 
     @GetMapping("/users")

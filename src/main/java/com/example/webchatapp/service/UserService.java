@@ -44,4 +44,10 @@ public class UserService implements UserDetailsService {
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
+
+    public User findByUsername(String username) {
+        return userRepository.findByUsername(username)
+                .orElse(null); // Sau aruncă o excepție dacă preferi
+    }
+
 }

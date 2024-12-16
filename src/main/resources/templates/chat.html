@@ -201,6 +201,7 @@
   </div>
 </div>
 
+
 <script>
   let stompClient = null;
   let currentUser = null; // Va fi setat după ce obținem numele utilizatorului curent.
@@ -212,6 +213,7 @@
             .then(response => response.json())
             .then(data => {
               currentUser = data.username; // Setăm numele utilizatorului
+              currentUserId = data.id;
               initializeWebSocket();
             })
             .catch(error => console.error('Failed to fetch current user:', error));
@@ -422,25 +424,24 @@
     const conversationData = {
       name: `Conversație privată cu ${user.username}`,
       isGeneral: false,
-      participantIds: [currentUserId, user.id] // ID-ul utilizatorului curent și ID-ul utilizatorului selectat
+      participantIds: [currentUserId, user.id] // ID-uri utilizator curent și utilizator selectat
     };
 
-    fetch('/api/conversations', {
+    fetch('http://localhost:8080/api/conversations', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(conversationData)
+      body: JSON.stringify(conversationData), // Trimite datele conversației
     })
-            .then(response => response.json())
-            .then(conversation => {
-              // Adăugăm conversația privată în lista de conversații
-              addConversationToSidebar(conversation);
-
-              // Închidem modalul
-              closeSelectUserModel();
+            .then((response) => {
+              if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+              }
+              return response.json();
             })
-            .catch(error => console.error('Failed to create private conversation:', error));
+            .then((data) => console.log(data))
+            .catch((error) => console.error(error));
   }
 
 
