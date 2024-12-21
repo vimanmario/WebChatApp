@@ -146,6 +146,21 @@
       padding: 10px;
       font-size: 1em;
     }
+    /* Data afișată în mijloc */
+    #messages > div[style*="text-align: center"] {
+      color: #888;
+      font-size: 0.9em;
+    }
+
+    /* Ora mesajului */
+    .message div:last-child {
+      margin-top: 5px;
+      font-size: 0.8em;
+      color: #555;
+      text-align: right;
+    }
+
+
   </style>
 </head>
 <body>
@@ -207,6 +222,7 @@
   let currentUser = null; // Va fi setat după ce obținem numele utilizatorului curent.
   let currentUserId = null;
   let currentConversationId = 1;
+  let lastMessageDate = null;
 
   function connect() {
     // Obține numele utilizatorului curent
@@ -255,18 +271,42 @@
   }
 
 
-  function showMessage(message, sender) {
+  function showMessage(message, sender, timestamp) {
     const messageElement = document.createElement("div");
     messageElement.classList.add("message");
 
     const messagesContainer = document.getElementById("messages");
+
+    // Formatează timestamp-ul
+    const messageDate = new Date(timestamp);
+    const formattedDate = messageDate.toLocaleDateString('ro-RO'); // Format ex: 01.02.2003
+    const formattedTime = messageDate.toLocaleTimeString('ro-RO', { hour: '2-digit', minute: '2-digit' }); // Format ex: 14:02
+
+    // Adaugă data înaintea primului mesaj al zilei
+    if (lastMessageDate !== formattedDate) {
+      const dateElement = document.createElement("div");
+      dateElement.textContent = formattedDate;
+      dateElement.style.textAlign = "center";
+      dateElement.style.fontWeight = "bold";
+      dateElement.style.margin = "10px 0";
+      messagesContainer.appendChild(dateElement);
+      lastMessageDate = formattedDate;
+    }
 
     if (sender === currentUser) {
       // Mesajele utilizatorului curent nu afișează numele
       messageElement.classList.add("right");
       const messageContent = document.createElement("div");
       messageContent.textContent = message;
+
+      const messageTime = document.createElement("div");
+      messageTime.textContent = formattedTime;
+      messageTime.style.fontSize = "0.8em";
+      messageTime.style.color = "#555";
+      messageTime.style.textAlign = "right";
+
       messageElement.appendChild(messageContent);
+      messageElement.appendChild(messageTime);
     } else {
       // Mesajele altor utilizatori afișează numele ca header
       messageElement.classList.add("left");
@@ -278,8 +318,15 @@
       const messageContent = document.createElement("div");
       messageContent.textContent = message;
 
+      const messageTime = document.createElement("div");
+      messageTime.textContent = formattedTime;
+      messageTime.style.fontSize = "0.8em";
+      messageTime.style.color = "#555";
+      messageTime.style.textAlign = "right";
+
       messageElement.appendChild(messageHeader);
       messageElement.appendChild(messageContent);
+      messageElement.appendChild(messageTime);
     }
 
     messagesContainer.appendChild(messageElement);
@@ -326,7 +373,26 @@
             .then(messages => {
               const messagesContainer = document.getElementById("messages");
               messagesContainer.innerHTML = ""; // Curăță mesajele vechi pentru a evita duplicarea
+
+              let lastDate = null; // data ultimului mesaj afisat
+
               messages.forEach(message => {
+                const messageDate = new Date(message.timestamp); // Presupunem că mesajul are un câmp `timestamp`
+                const formattedDate = messageDate.toLocaleDateString(); // Formatăm data ca DD.MM.YYYY
+                const formattedTime = messageDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }); // HH:MM
+
+                // Afișează data înaintea primului mesaj dintr-o zi
+                if (lastDate !== formattedDate) {
+                  lastDate = formattedDate;
+
+                  const dateElement = document.createElement("div");
+                  dateElement.textContent = formattedDate;
+                  dateElement.style.textAlign = "center";
+                  dateElement.style.fontWeight = "bold";
+                  dateElement.style.margin = "10px 0";
+                  messagesContainer.appendChild(dateElement);
+                }
+
                 const messageElement = document.createElement("div");
                 messageElement.classList.add("message");
 
@@ -334,6 +400,7 @@
                   messageElement.classList.add("right");
                 } else {
                   messageElement.classList.add("left");
+
                   const messageHeader = document.createElement("div");
                   messageHeader.classList.add("message-header");
                   messageHeader.textContent = message.sender;
@@ -342,7 +409,17 @@
 
                 const messageContent = document.createElement("div");
                 messageContent.textContent = message.content;
+
+                // Creează elementul pentru ora mesajului
+                const timeElement = document.createElement("span");
+                timeElement.textContent = formattedTime;
+                timeElement.style.fontSize = "0.8em";
+                timeElement.style.color = "#888";
+                timeElement.style.float = "right";
+
+                messageContent.appendChild(timeElement);
                 messageElement.appendChild(messageContent);
+
                 messagesContainer.appendChild(messageElement);
               });
 
