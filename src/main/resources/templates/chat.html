@@ -120,7 +120,7 @@
       padding: 10px;
       border-radius: 10px;
       max-width: 70%;
-      transition: background-color 0.3s ease;
+      position: relative;
     }
     .message.right {
       align-self: flex-end;
@@ -152,14 +152,19 @@
       font-size: 0.9em;
     }
 
-    /* Ora mesajului */
-    .message div:last-child {
-      margin-top: 5px;
+    .message-time-container {
+      display: flex;
+      justify-content: flex-end; /* Poziționează ora în partea dreaptă */
+      width: 100%;
+      margin-top: 5px; /* Distanță între mesaj și ora */
+    }
+
+    .message-time {
       font-size: 0.8em;
       color: #555;
       text-align: right;
+      margin-top: 5px;
     }
-
 
   </style>
 </head>
@@ -206,7 +211,11 @@
     </div>
 
     <!-- Container pentru mesaje -->
-    <div id="messages"></div>
+    <div id="messages">
+      <div class="message-time-container">
+        <span class="message-time"></span>
+      </div>
+    </div>
 
     <!-- Container pentru mesajul de intrare și butonul de trimitere -->
     <div id="input-container">
@@ -294,21 +303,23 @@
     }
 
     if (sender === currentUser) {
-      // Mesajele utilizatorului curent nu afișează numele
+      // Mesajele utilizatorului curent
       messageElement.classList.add("right");
       const messageContent = document.createElement("div");
       messageContent.textContent = message;
 
-      const messageTime = document.createElement("div");
-      messageTime.textContent = formattedTime;
-      messageTime.style.fontSize = "0.8em";
-      messageTime.style.color = "#555";
-      messageTime.style.textAlign = "right";
-
       messageElement.appendChild(messageContent);
-      messageElement.appendChild(messageTime);
+
+      // Ora pe un rând separat
+      const timeContainer = document.createElement("div");
+      timeContainer.classList.add("message-time-container");
+      const messageTime = document.createElement("div");
+      messageTime.classList.add("message-time");
+      messageTime.textContent = formattedTime;
+      timeContainer.appendChild(messageTime);
+      messageElement.appendChild(timeContainer);
     } else {
-      // Mesajele altor utilizatori afișează numele ca header
+      // Mesajele altor utilizatori
       messageElement.classList.add("left");
 
       const messageHeader = document.createElement("div");
@@ -318,15 +329,17 @@
       const messageContent = document.createElement("div");
       messageContent.textContent = message;
 
-      const messageTime = document.createElement("div");
-      messageTime.textContent = formattedTime;
-      messageTime.style.fontSize = "0.8em";
-      messageTime.style.color = "#555";
-      messageTime.style.textAlign = "right";
-
       messageElement.appendChild(messageHeader);
       messageElement.appendChild(messageContent);
-      messageElement.appendChild(messageTime);
+
+      // Ora pe un rând separat
+      const timeContainer = document.createElement("div");
+      timeContainer.classList.add("message-time-container");
+      const messageTime = document.createElement("div");
+      messageTime.classList.add("message-time");
+      messageTime.textContent = formattedTime;
+      timeContainer.appendChild(messageTime);
+      messageElement.appendChild(timeContainer);;
     }
 
     messagesContainer.appendChild(messageElement);
@@ -334,8 +347,6 @@
     // Derulează automat la ultimul mesaj
     scrollToBottom();
   }
-
-
 
   function logout() {
     console.log("Initiating logout"); // Debug 10
