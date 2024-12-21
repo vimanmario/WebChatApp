@@ -466,7 +466,18 @@
     }
 
     const listItem = document.createElement("li");
-    listItem.textContent = conversation.name;
+
+    // Verificăm dacă este o conversație privată
+    if (!conversation.isGeneral && conversation.participants) {
+      // Afișăm numele celuilalt utilizator
+      const otherParticipant = conversation.participants.find(participant => participant.id !== currentUserId);
+      listItem.textContent = otherParticipant ? otherParticipant.username : "Conversație fără nume";
+    } else {
+      // Pentru conversația generală sau alte cazuri, afișăm numele implicit
+      listItem.textContent = conversation.name;
+    }
+
+    listItem.dataset.conversationId = conversation.id; // Atribuim ID-ul conversației
     listItem.onclick = () => selectConversation(conversation.id); // La click se schimbă conversația
     conversationList.appendChild(listItem);
   }
