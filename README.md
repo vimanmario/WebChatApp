@@ -19,7 +19,6 @@
 MUST: 
 - conversatie publica 
 - conversatii 1 la 1
-- grupuri
 
 SHOULD: 
 - capabilitate de trimitere poze, fisiere, video etc.
