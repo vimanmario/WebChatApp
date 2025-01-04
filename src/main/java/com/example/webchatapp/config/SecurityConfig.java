@@ -55,8 +55,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/register", "/login", "/css/**", "/js/**").permitAll()
                         .requestMatchers("/chat").authenticated()
-                        .requestMatchers(HttpMethod.POST, "/api/conversations").authenticated() // le putem face si permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/conversations").authenticated() // depinde
+                        .requestMatchers(HttpMethod.POST, "/api/conversations","/api/messages/${conversationId}").authenticated() // le putem face si permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/conversations","/api/messages/${conversationId}").authenticated() // depinde
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form

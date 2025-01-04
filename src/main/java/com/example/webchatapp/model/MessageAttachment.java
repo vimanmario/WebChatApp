@@ -1,5 +1,7 @@
 package com.example.webchatapp.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 
 @Entity
@@ -16,6 +18,8 @@ public class MessageAttachment {
 
     @ManyToOne
     @JoinColumn(name = "message_id")
+    //@JsonBackReference
+    @JsonIgnoreProperties("attachments")
     private Message message;
 
     public Long getId() {

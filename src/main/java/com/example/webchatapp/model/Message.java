@@ -13,6 +13,7 @@ import jakarta.persistence.*;
 
 @Entity
 @Table(name = "messages")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Message {
 
     @Id
@@ -25,13 +26,13 @@ public class Message {
 
     private boolean hasAttachment;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name="conversation_id")
-    @JsonIgnore // Evită accesul la conversație din JSON
+    //@JsonIgnore // Evită accesul la conversație din JSON
     private Conversation conversation;
 
-    @OneToMany(mappedBy = "message", cascade = CascadeType.ALL)
-    @JsonManagedReference
+    @OneToMany(mappedBy = "message", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @JsonIgnoreProperties("message") //
     private List<MessageAttachment> attachments = new ArrayList<>();
 
     // Constructori, getter și setter

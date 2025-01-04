@@ -501,8 +501,7 @@
             .then(messages => {
               console.log("Messages fetched:", messages);
               if (!Array.isArray(messages)) {
-                console.error("Response is not an array:", messages);
-                throw new Error("Unexpected response format");
+                throw new Error("Unexpected response format: messages is not an array");
               }
               const messagesContainer = document.getElementById("messages");
               messagesContainer.innerHTML = ""; // Curăță mesajele vechi pentru a evita duplicarea
