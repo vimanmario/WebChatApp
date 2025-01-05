@@ -5,6 +5,8 @@ import com.example.webchatapp.model.User;
 import com.example.webchatapp.repository.ConversationRepository;
 import com.example.webchatapp.service.ConversationService;
 import com.example.webchatapp.service.UserService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +20,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/api")
 public class ConversationController {
+    private static final Logger logger = LoggerFactory.getLogger(ConversationController.class);
 
     private final ConversationService conversationService;
     @Autowired
@@ -61,8 +64,11 @@ public class ConversationController {
     // Endpoint pentru a obține doar conversațiile relevante pentru un utilizator
     @GetMapping("/conversations/user/{userId}")
     public ResponseEntity<List<Conversation>> getUserConversations(@PathVariable Long userId) {
+        logger.info("Fetching conversations for userId: {}", userId);
         try {
             List<Conversation> conversations = conversationRepository.findByUserId(userId);  // Filtrăm după ID-ul utilizatorului
+            logger.debug("Conversations fetched: {}", conversations);
+
             if (conversations.isEmpty()) {
                 return ResponseEntity.noContent().build();
             }

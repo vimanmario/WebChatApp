@@ -1,12 +1,19 @@
 package com.example.webchatapp.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.Id;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
 import jakarta.persistence.*;
 
 @Entity
 @Table(name = "messages")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Message {
 
     @Id
@@ -17,10 +24,16 @@ public class Message {
     private String content; // Conținutul mesajului
     private LocalDateTime timestamp; // Timpul în care a fost trimis mesajul
 
-    @ManyToOne
+    private boolean hasAttachment;
+
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name="conversation_id")
-    @JsonBackReference
+    //@JsonIgnore // Evită accesul la conversație din JSON
     private Conversation conversation;
+
+    @OneToMany(mappedBy = "message", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @JsonIgnoreProperties("message") //
+    private List<MessageAttachment> attachments = new ArrayList<>();
 
     // Constructori, getter și setter
     public Message() {}
@@ -70,5 +83,21 @@ public class Message {
 
     public void setConversation(Conversation conversation) {
         this.conversation = conversation;
+    }
+
+    public List<MessageAttachment> getAttachments() {
+        return attachments;
+    }
+
+    public void setAttachments(List<MessageAttachment> attachments) {
+        this.attachments = attachments;
+    }
+
+    public boolean isHasAttachment() {
+        return hasAttachment;
+    }
+
+    public void setHasAttachment(boolean hasAttachment) {
+        this.hasAttachment = hasAttachment;
     }
 }

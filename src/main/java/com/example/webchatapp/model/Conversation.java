@@ -1,5 +1,6 @@
 package com.example.webchatapp.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
@@ -15,17 +16,19 @@ public class Conversation {
     private String name; // Numele conversației (e.g., "General", "Private-User1-User2")
     private boolean isGeneral; // Flag pentru conversația generală
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "conversation_participants",
             joinColumns = @JoinColumn(name = "conversation_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )
+    @JsonIgnore
     private List<User> participants; // Lista utilizatorilor (doar pentru conversațiile private)
 
 
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "conversation")
-    @JsonManagedReference // Previne recursivitatea
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "conversation")
+    //@JsonManagedReference // Previne recursivitatea
+    @JsonIgnore // Previne accesarea LAZY din Json
     private List<Message> messages;
 
     // Constructori, getter și setter
