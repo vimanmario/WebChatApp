@@ -560,29 +560,28 @@
                     const attachmentElement = document.createElement("div");
                     attachmentElement.classList.add("attachment");
 
-                    if (attachment.type.startsWith('image/')) {
+                    if (attachment.fileType.startsWith('image/')) {
                       const img = document.createElement("img");
-                      img.src = `/api/files/${attachment.storedName}`;
-                      img.alt = attachment.originalName;
+                      img.src = attachment.fileUrl; // asigură-te că backend-ul trimite acest câmp
+                      img.alt = attachment.fileName; // utilizează fileName pentru alt text
                       img.style.maxWidth = "200px";
                       img.style.cursor = "pointer";
                       img.onclick = () => window.open(img.src, '_blank');
                       attachmentElement.appendChild(img);
                     } else {
                       const link = document.createElement("a");
-                      link.href = `/api/files/${attachment.storedName}`;
-                      link.download = attachment.originalName;
+                      link.href = attachment.fileUrl;
+                      link.download = attachment.fileName;
                       link.classList.add("file-attachment");
-
-                      let fileIcon = "📄"; // Default
-                      if (attachment.type.includes('pdf')) fileIcon = "📕";
-                      else if (attachment.type.includes('zip') || attachment.type.includes('rar')) fileIcon = "📦";
-                      else if (attachment.type.includes('word')) fileIcon = "📘";
-                      else if (attachment.type.includes('excel')) fileIcon = "📗";
-
-                      link.innerHTML = `${fileIcon} ${attachment.originalName}`;
+                      let fileIcon = "📄";
+                      if (attachment.fileType.includes('pdf')) fileIcon = "📕";
+                      else if (attachment.fileType.includes('zip')) fileIcon = "📦";
+                      else if (attachment.fileType.includes('word')) fileIcon = "📘";
+                      else if (attachment.fileType.includes('excel')) fileIcon = "📗";
+                      link.innerHTML = `${fileIcon} ${attachment.fileName}`;
                       attachmentElement.appendChild(link);
                     }
+
 
                     attachmentsContainer.appendChild(attachmentElement);
                   });

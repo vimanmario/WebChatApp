@@ -53,24 +53,20 @@ public class MessageService {
         }
     }
 
-    public Message saveMessageWithAttachment(Long conversationId, String sender,
-                                             String content, MultipartFile file) throws IOException {
+    public Message saveMessageWithAttachments(Long conversationId, String sender, String content, List<MessageAttachment> attachments) {
         Conversation conversation = conversationService.getConversationById(conversationId);
         Message message = new Message(sender, content, LocalDateTime.now(), conversation);
-        message.setHasAttachment(true);
 
-        if (file != null && !file.isEmpty()) {
-            String fileName = fileStorageService.storeFile(file);
-            MessageAttachment attachment = new MessageAttachment();
-            attachment.setFileName(fileName);
-            attachment.setFileType(file.getContentType());
-            attachment.setFileSize(file.getSize());
-            attachment.setFileUrl("/api/files/" + fileName);
-            attachment.setMessage(message);
-            message.getAttachments().add(attachment);
+        if (attachments != null && !attachments.isEmpty()) {
+            for (MessageAttachment attachment : attachments) {
+                attachment.setMessage(message); // Asociem atașamentul cu mesajul
+                message.getAttachments().add(attachment);
+            }
+            message.setHasAttachment(true);
         }
 
         return messageRepository.save(message);
     }
+
 
 }
