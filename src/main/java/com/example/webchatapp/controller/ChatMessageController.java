@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.security.core.Authentication;
@@ -37,6 +38,7 @@ public class ChatMessageController {
 
         try {
             ObjectMapper objectMapper = new ObjectMapper();
+            objectMapper.registerModule(new JavaTimeModule());
             ObjectNode messageNode = (ObjectNode) objectMapper.readTree(messageJson);
 
             sender = messageNode.get("sender").asText();
@@ -52,7 +54,7 @@ public class ChatMessageController {
                     attachment.setFileName(attachmentNode.get("storedName").asText());
                     attachment.setFileType(attachmentNode.get("type").asText());
                     attachment.setFileUrl("/api/files/" + attachmentNode.get("storedName").asText());
-                    attachment.setFileSize(0L); // Setăm dimensiunea fișierului dacă este necesar
+                    //attachment.setFileSize(0L); // Setăm dimensiunea fișierului dacă este necesar
                     attachments.add(attachment);
                 }
             }

@@ -351,18 +351,32 @@
   }
 
 
-  function showMessage(message, sender, timestamp) {
+  function showMessage(message, sender, timestamp, attachments = []) {
     const messageElement = document.createElement("div");
     messageElement.classList.add("message");
 
     const messagesContainer = document.getElementById("messages");
 
-    // Formatează timestamp-ul
-    const messageDate = new Date(timestamp);
-    const formattedDate = messageDate.toLocaleDateString('ro-RO'); // Format ex: 01.02.2003
-    const formattedTime = messageDate.toLocaleTimeString('ro-RO', { hour: '2-digit', minute: '2-digit' }); // Format ex: 14:02
+    // Parse timestamp
+    let messageDate;
+    try {
+      messageDate = new Date(timestamp);
+      if (isNaN(messageDate.getTime())) {
+        const [date, time] = timestamp.split('T');
+        messageDate = new Date(date + 'T' + time.split('.')[0]);
+      }
+    } catch (e) {
+      messageDate = new Date();
+    }
 
-    // Adaugă data înaintea primului mesaj al zilei
+    const formattedDate = messageDate.toLocaleDateString('ro-RO');
+    const formattedTime = messageDate.toLocaleTimeString('ro-RO', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
+    });
+
+    // Date separator logic
     if (lastMessageDate !== formattedDate) {
       const dateElement = document.createElement("div");
       dateElement.textContent = formattedDate;
@@ -373,76 +387,60 @@
       lastMessageDate = formattedDate;
     }
 
+    // Message structure
     if (sender === currentUser) {
-      // Mesajele utilizatorului curent
       messageElement.classList.add("right");
-      const messageContent = document.createElement("div");
-      messageContent.textContent = message;
-
-      messageElement.appendChild(messageContent);
-
-      // Ora pe un rând separat
-      const timeContainer = document.createElement("div");
-      timeContainer.classList.add("message-time-container");
-      const messageTime = document.createElement("div");
-      messageTime.classList.add("message-time");
-      messageTime.textContent = formattedTime;
-      timeContainer.appendChild(messageTime);
-      messageElement.appendChild(timeContainer);
+      const contentContainer = document.createElement("div");
+      contentContainer.classList.add("message-content");
+      contentContainer.textContent = message;
+      messageElement.appendChild(contentContainer);
     } else {
-      // Mesajele altor utilizatori
       messageElement.classList.add("left");
+      const headerContainer = document.createElement("div");
+      headerContainer.classList.add("message-header");
+      headerContainer.textContent = sender;
+      messageElement.appendChild(headerContainer);
 
-      const messageHeader = document.createElement("div");
-      messageHeader.classList.add("message-header");
-      messageHeader.textContent = sender;
-
-      const messageContent = document.createElement("div");
-      messageContent.textContent = message;
-
-      messageElement.appendChild(messageHeader);
-      messageElement.appendChild(messageContent);
-
-      // Ora pe un rând separat
-      const timeContainer = document.createElement("div");
-      timeContainer.classList.add("message-time-container");
-      const messageTime = document.createElement("div");
-      messageTime.classList.add("message-time");
-      messageTime.textContent = formattedTime;
-      timeContainer.appendChild(messageTime);
-      messageElement.appendChild(timeContainer);;
+      const contentContainer = document.createElement("div");
+      contentContainer.classList.add("message-content");
+      contentContainer.textContent = message;
+      messageElement.appendChild(contentContainer);
     }
 
-    // Adăugăm zona pentru atașamente dacă există
-    if (message.attachments && message.attachments.length > 0) {
+    // Add timestamp
+    const timeContainer = document.createElement("div");
+    timeContainer.classList.add("message-time");
+    timeContainer.textContent = formattedTime;
+    messageElement.appendChild(timeContainer);
+
+    // Handle attachments
+    if (attachments && attachments.length > 0) {
       const attachmentsContainer = document.createElement("div");
       attachmentsContainer.classList.add("attachments-container");
 
-      message.attachments.forEach(attachment => {
+      attachments.forEach(attachment => {
         const attachmentElement = document.createElement("div");
         attachmentElement.classList.add("attachment");
 
-        if (attachment.type.startsWith('image/')) {
+        if (attachment.fileType.startsWith('image/')) {
           const img = document.createElement("img");
-          img.src = `/api/files/${attachment.storedName}`;
-          img.alt = attachment.originalName;
+          img.src = attachment.fileUrl;
+          img.alt = attachment.fileName;
           img.style.maxWidth = "200px";
           img.style.cursor = "pointer";
           img.onclick = () => window.open(img.src, '_blank');
           attachmentElement.appendChild(img);
         } else {
           const link = document.createElement("a");
-          link.href = `/api/files/${attachment.storedName}`;
-          link.download = attachment.originalName;
+          link.href = attachment.fileUrl;
+          link.download = attachment.fileName;
           link.classList.add("file-attachment");
-
-          let fileIcon = "📄"; // Default
-          if (attachment.type.includes('pdf')) fileIcon = "📕";
-          else if (attachment.type.includes('zip') || attachment.type.includes('rar')) fileIcon = "📦";
-          else if (attachment.type.includes('word')) fileIcon = "📘";
-          else if (attachment.type.includes('excel')) fileIcon = "📗";
-
-          link.innerHTML = `${fileIcon} ${attachment.originalName}`;
+          let fileIcon = "📄";
+          if (attachment.fileType.includes('pdf')) fileIcon = "📕";
+          else if (attachment.fileType.includes('zip')) fileIcon = "📦";
+          else if (attachment.fileType.includes('word')) fileIcon = "📘";
+          else if (attachment.fileType.includes('excel')) fileIcon = "📗";
+          link.innerHTML = `${fileIcon} ${attachment.fileName}`;
           attachmentElement.appendChild(link);
         }
 
@@ -453,10 +451,9 @@
     }
 
     messagesContainer.appendChild(messageElement);
-
-    // Derulează automat la ultimul mesaj
     scrollToBottom();
   }
+
 
   function logout() {
     console.log("Initiating logout"); // Debug 10
@@ -488,7 +485,7 @@
 
   }
 
-  function loadMessages(conversationId = 1) { // Conversația generală implicită
+  function loadMessages(conversationId = 1) {
     fetch(`/api/messages/${conversationId}`)
             .then((response) => {
               console.log("Response received for messages API:", response);
@@ -503,99 +500,28 @@
               if (!Array.isArray(messages)) {
                 throw new Error("Unexpected response format: messages is not an array");
               }
+
               const messagesContainer = document.getElementById("messages");
               messagesContainer.innerHTML = ""; // Curăță mesajele vechi pentru a evita duplicarea
 
-              let lastDate = null; // data ultimului mesaj afisat
+              let lastMessageDate = null; // Variabilă globală pentru separatorul de date
 
               messages.forEach(message => {
-                const messageDate = new Date(message.timestamp); // Presupunem că mesajul are un câmp `timestamp`
-                const formattedDate = messageDate.toLocaleDateString(); // Formatăm data ca DD.MM.YYYY
-                const formattedTime = messageDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }); // HH:MM
-
-                // Afișează data înaintea primului mesaj dintr-o zi
-                if (lastDate !== formattedDate) {
-                  lastDate = formattedDate;
-
-                  const dateElement = document.createElement("div");
-                  dateElement.textContent = formattedDate;
-                  dateElement.style.textAlign = "center";
-                  dateElement.style.fontWeight = "bold";
-                  dateElement.style.margin = "10px 0";
-                  messagesContainer.appendChild(dateElement);
-                }
-
-                const messageElement = document.createElement("div");
-                messageElement.classList.add("message");
-
-                if (message.sender === currentUser) {
-                  messageElement.classList.add("right");
-                } else {
-                  messageElement.classList.add("left");
-
-                  const messageHeader = document.createElement("div");
-                  messageHeader.classList.add("message-header");
-                  messageHeader.textContent = message.sender;
-                  messageElement.appendChild(messageHeader);
-                }
-
-                const messageContent = document.createElement("div");
-                messageContent.textContent = message.content;
-
-                //elementul pentru ora mesajului
-                const timeElement = document.createElement("span");
-                timeElement.textContent = formattedTime;
-                timeElement.style.fontSize = "0.8em";
-                timeElement.style.color = "#888";
-                timeElement.style.float = "right";
-
-                messageContent.appendChild(timeElement);
-                messageElement.appendChild(messageContent);
-
-                if (message.attachments && message.attachments.length > 0) {
-                  const attachmentsContainer = document.createElement("div");
-                  attachmentsContainer.classList.add("attachments-container");
-
-                  message.attachments.forEach(attachment => {
-                    const attachmentElement = document.createElement("div");
-                    attachmentElement.classList.add("attachment");
-
-                    if (attachment.fileType.startsWith('image/')) {
-                      const img = document.createElement("img");
-                      img.src = attachment.fileUrl; // asigură-te că backend-ul trimite acest câmp
-                      img.alt = attachment.fileName; // utilizează fileName pentru alt text
-                      img.style.maxWidth = "200px";
-                      img.style.cursor = "pointer";
-                      img.onclick = () => window.open(img.src, '_blank');
-                      attachmentElement.appendChild(img);
-                    } else {
-                      const link = document.createElement("a");
-                      link.href = attachment.fileUrl;
-                      link.download = attachment.fileName;
-                      link.classList.add("file-attachment");
-                      let fileIcon = "📄";
-                      if (attachment.fileType.includes('pdf')) fileIcon = "📕";
-                      else if (attachment.fileType.includes('zip')) fileIcon = "📦";
-                      else if (attachment.fileType.includes('word')) fileIcon = "📘";
-                      else if (attachment.fileType.includes('excel')) fileIcon = "📗";
-                      link.innerHTML = `${fileIcon} ${attachment.fileName}`;
-                      attachmentElement.appendChild(link);
-                    }
-
-
-                    attachmentsContainer.appendChild(attachmentElement);
-                  });
-
-                  messageElement.appendChild(attachmentsContainer);
-                }
-
-                messagesContainer.appendChild(messageElement);
+                // Transmitem totul către showMessage
+                showMessage(
+                        message.content,    // Conținutul mesajului
+                        message.sender,     // Expeditorul mesajului
+                        message.timestamp,  // Timpul mesajului
+                        message.attachments // Atașamentele (dacă există)
+                );
               });
 
               scrollToBottom();
             })
             .catch(error => console.error("Failed to load messages:", error));
   }
+
+
 
   function searchMessages() {
     const query = document.getElementById("search-input").value.toLowerCase();
