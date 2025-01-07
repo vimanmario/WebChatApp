@@ -411,6 +411,10 @@
       const attachmentsContainer = document.createElement("div");
       attachmentsContainer.classList.add("attachments-container");
 
+      // Create a counter for loaded attachments
+      let loadedAttachments = 0;
+      const totalAttachments = attachments.length;
+
       attachments.forEach(attachment => {
         const attachmentElement = document.createElement("div");
         attachmentElement.classList.add("attachment");
@@ -422,6 +426,23 @@
           img.style.maxWidth = "200px";
           img.style.cursor = "pointer";
           img.onclick = () => window.open(img.src, '_blank');
+
+          // Add load event listener for images
+          img.onload = () => {
+            loadedAttachments++;
+            if (loadedAttachments === totalAttachments) {
+              scrollToBottom();
+            }
+          };
+
+          // Add error event listener in case image fails to load
+          img.onerror = () => {
+            loadedAttachments++;
+            if (loadedAttachments === totalAttachments) {
+              scrollToBottom();
+            }
+          };
+
           attachmentElement.appendChild(img);
         } else {
           const link = document.createElement("a");
@@ -435,6 +456,12 @@
           else if (attachment.fileType.includes('excel')) fileIcon = "📗";
           link.innerHTML = `${fileIcon} ${attachment.fileName}`;
           attachmentElement.appendChild(link);
+
+          // For non-image attachments, increment counter immediately
+          loadedAttachments++;
+          if (loadedAttachments === totalAttachments) {
+            scrollToBottom();
+          }
         }
 
         attachmentsContainer.appendChild(attachmentElement);
@@ -450,7 +477,11 @@
     messageElement.appendChild(timeContainer);
 
     messagesContainer.appendChild(messageElement);
-    scrollToBottom();
+
+    // If there are no attachments, scroll immediately
+    if (!attachments || attachments.length === 0) {
+      scrollToBottom();
+    }
   }
 
   function logout() {
@@ -512,6 +543,7 @@
                         message.timestamp,  // Timpul mesajului
                         message.attachments // Atașamentele (dacă există)
                 );
+
               });
 
               scrollToBottom();
@@ -552,7 +584,6 @@
     const messagesContainer = document.getElementById("messages");
     messagesContainer.scrollTop = messagesContainer.scrollHeight;
   }
-
   // Funcție pentru a deschide modalul de selecție a utilizatorului
   function openSelectUserModel() {
     document.getElementById("selectUserModel").style.display = "block";
