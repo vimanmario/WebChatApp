@@ -290,7 +290,8 @@
       stompClient.subscribe('/topic/public', function (message) {
         const parsedMessage = JSON.parse(message.body);
         console.log('Received message:', parsedMessage); // Debug
-        showMessage(parsedMessage.content, parsedMessage.sender);
+        showMessage(parsedMessage.content, parsedMessage.sender, parsedMessage.timestamp, parsedMessage.attachments);
+
       });
     }, function (error) {
       console.error('WebSocket connection failed:', error); // Debug
@@ -390,30 +391,22 @@
     // Message structure
     if (sender === currentUser) {
       messageElement.classList.add("right");
-      const contentContainer = document.createElement("div");
-      contentContainer.classList.add("message-content");
-      contentContainer.textContent = message;
-      messageElement.appendChild(contentContainer);
     } else {
       messageElement.classList.add("left");
       const headerContainer = document.createElement("div");
       headerContainer.classList.add("message-header");
       headerContainer.textContent = sender;
       messageElement.appendChild(headerContainer);
+    }
 
+    // Add content or attachments
+    if (message) {
       const contentContainer = document.createElement("div");
       contentContainer.classList.add("message-content");
       contentContainer.textContent = message;
       messageElement.appendChild(contentContainer);
     }
 
-    // Add timestamp
-    const timeContainer = document.createElement("div");
-    timeContainer.classList.add("message-time");
-    timeContainer.textContent = formattedTime;
-    messageElement.appendChild(timeContainer);
-
-    // Handle attachments
     if (attachments && attachments.length > 0) {
       const attachmentsContainer = document.createElement("div");
       attachmentsContainer.classList.add("attachments-container");
@@ -450,10 +443,15 @@
       messageElement.appendChild(attachmentsContainer);
     }
 
+    // Add timestamp
+    const timeContainer = document.createElement("div");
+    timeContainer.classList.add("message-time");
+    timeContainer.textContent = formattedTime;
+    messageElement.appendChild(timeContainer);
+
     messagesContainer.appendChild(messageElement);
     scrollToBottom();
   }
-
 
   function logout() {
     console.log("Initiating logout"); // Debug 10
