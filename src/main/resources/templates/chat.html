@@ -290,7 +290,8 @@
       stompClient.subscribe('/topic/public', function (message) {
         const parsedMessage = JSON.parse(message.body);
         console.log('Received message:', parsedMessage); // Debug
-        showMessage(parsedMessage.content, parsedMessage.sender);
+        showMessage(parsedMessage.content, parsedMessage.sender, parsedMessage.timestamp, parsedMessage.attachments);
+
       });
     }, function (error) {
       console.error('WebSocket connection failed:', error); // Debug
@@ -390,33 +391,29 @@
     // Message structure
     if (sender === currentUser) {
       messageElement.classList.add("right");
-      const contentContainer = document.createElement("div");
-      contentContainer.classList.add("message-content");
-      contentContainer.textContent = message;
-      messageElement.appendChild(contentContainer);
     } else {
       messageElement.classList.add("left");
       const headerContainer = document.createElement("div");
       headerContainer.classList.add("message-header");
       headerContainer.textContent = sender;
       messageElement.appendChild(headerContainer);
+    }
 
+    // Add content or attachments
+    if (message) {
       const contentContainer = document.createElement("div");
       contentContainer.classList.add("message-content");
       contentContainer.textContent = message;
       messageElement.appendChild(contentContainer);
     }
 
-    // Add timestamp
-    const timeContainer = document.createElement("div");
-    timeContainer.classList.add("message-time");
-    timeContainer.textContent = formattedTime;
-    messageElement.appendChild(timeContainer);
-
-    // Handle attachments
     if (attachments && attachments.length > 0) {
       const attachmentsContainer = document.createElement("div");
       attachmentsContainer.classList.add("attachments-container");
+
+      // Create a counter for loaded attachments
+      let loadedAttachments = 0;
+      const totalAttachments = attachments.length;
 
       attachments.forEach(attachment => {
         const attachmentElement = document.createElement("div");
@@ -429,6 +426,23 @@
           img.style.maxWidth = "200px";
           img.style.cursor = "pointer";
           img.onclick = () => window.open(img.src, '_blank');
+
+          // Add load event listener for images
+          img.onload = () => {
+            loadedAttachments++;
+            if (loadedAttachments === totalAttachments) {
+              scrollToBottom();
+            }
+          };
+
+          // Add error event listener in case image fails to load
+          img.onerror = () => {
+            loadedAttachments++;
+            if (loadedAttachments === totalAttachments) {
+              scrollToBottom();
+            }
+          };
+
           attachmentElement.appendChild(img);
         } else {
           const link = document.createElement("a");
@@ -442,6 +456,12 @@
           else if (attachment.fileType.includes('excel')) fileIcon = "📗";
           link.innerHTML = `${fileIcon} ${attachment.fileName}`;
           attachmentElement.appendChild(link);
+
+          // For non-image attachments, increment counter immediately
+          loadedAttachments++;
+          if (loadedAttachments === totalAttachments) {
+            scrollToBottom();
+          }
         }
 
         attachmentsContainer.appendChild(attachmentElement);
@@ -450,10 +470,19 @@
       messageElement.appendChild(attachmentsContainer);
     }
 
-    messagesContainer.appendChild(messageElement);
-    scrollToBottom();
-  }
+    // Add timestamp
+    const timeContainer = document.createElement("div");
+    timeContainer.classList.add("message-time");
+    timeContainer.textContent = formattedTime;
+    messageElement.appendChild(timeContainer);
 
+    messagesContainer.appendChild(messageElement);
+
+    // If there are no attachments, scroll immediately
+    if (!attachments || attachments.length === 0) {
+      scrollToBottom();
+    }
+  }
 
   function logout() {
     console.log("Initiating logout"); // Debug 10
@@ -514,6 +543,7 @@
                         message.timestamp,  // Timpul mesajului
                         message.attachments // Atașamentele (dacă există)
                 );
+
               });
 
               scrollToBottom();
@@ -554,7 +584,6 @@
     const messagesContainer = document.getElementById("messages");
     messagesContainer.scrollTop = messagesContainer.scrollHeight;
   }
-
   // Funcție pentru a deschide modalul de selecție a utilizatorului
   function openSelectUserModel() {
     document.getElementById("selectUserModel").style.display = "block";
@@ -614,7 +643,13 @@
               }
               return response.json();
             })
-            .then((data) => console.log(data))
+            .then((data) => {
+              console.log(data)
+              addConversationToSidebar(data);
+
+              // Închide modelul după adăugare
+              closeSelectUserModel();
+            })
             .catch((error) => console.error(error));
   }
 
