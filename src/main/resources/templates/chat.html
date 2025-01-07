@@ -643,7 +643,13 @@
               }
               return response.json();
             })
-            .then((data) => console.log(data))
+            .then((data) => {
+              console.log(data)
+              addConversationToSidebar(data);
+
+              // Închide modelul după adăugare
+              closeSelectUserModel();
+            })
             .catch((error) => console.error(error));
   }
 
