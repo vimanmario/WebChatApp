@@ -54,7 +54,7 @@ Cerinte preliminare:
 - **model**: contine clasele/entitatile necesare necesare pentru persistenta datelor. Ex: User etc.
 - **config**: include configurarile aplicatiei pentru securitate, websockets precum si altele. Ex: SecurityConfig, EncoderConfig, WebSocketConfig etc.
 - **service**: aici este implementata logica de business. Ex: UserService etc.
-- **filter**: folosit pentru a monitoriza cookie-urile, sessiunile, cache-ul si debugging
+- **filter**: folosit pentru a monitoriza cookie-urile, sessiunile, cache-ul si debugging.
 
 ###  3.3. Fluxul de date
   Acesta este reprezentare in prima faza de autorizare si autentificare, unde utilizatorul trimide datele de autentificare catre server, iar Spring Security valideaza datele si stocheaza detaliile in cadrul sesiunii active. In cadrul schimbului de mesaje intre utilizatori, acestia trimit mesajele printr-o conexiune WebSocket, iar serverul le proceseaza si trasmite mai departe. Mesajele si informatiile despre utilizatori sunt salvate in baza de date, asigurandu-se persistenta acestora, si istoricul mesajelor.
