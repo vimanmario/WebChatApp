@@ -108,18 +108,24 @@ Principalele caracteristici ale configuratiei:
 
 | Endpoint | Metode | Descriere |
 | --------------- | --------------- | --------------- |
-| /login | GET | Pagina de login |
-| /register | GET | Pagina de register |
-| Row 3 Column 1 | Row 3 Column 2 | Row 3 Column 3 |
-| Row 1 Column 1 | Row 1 Column 2 | Row 1 Column 3 |
-| Row 2 Column 1 | Row 2 Column 2 | Row 2 Column 3 |
-| Row 3 Column 1 | Row 3 Column 2 | Row 3 Column 3 |
-| Row 1 Column 1 | Row 1 Column 2 | Row 1 Column 3 |
-| Row 2 Column 1 | Row 2 Column 2 | Row 2 Column 3 |
-| Row 3 Column 1 | Row 3 Column 2 | Row 3 Column 3 |
-| Row 1 Column 1 | Row 1 Column 2 | Row 1 Column 3 |
-| Row 2 Column 1 | Row 2 Column 2 | Row 2 Column 3 |
-| Row 3 Column 1 | Row 3 Column 2 | Row 3 Column 3 |
+| /login | GET | Returneaza pagina de login |
+| /register | GET | Creeaza un obiect de tip user; Returneaza pagina de inregistrare |
+| /chat | GET | Returneaza pagina de chatting daca utilizatorul este autentificat, altfel retunreaza pagina de login |
+| /chat.sendMessage | POST | Va gestiona mesajele primite pe aceasta ruta (conversatia generala) |
+| /topic/public | POST | Indica faptul ca mesajele procesate vor fi trimite la toti utilizatorii abonati la acest topic (conversatia generala) |
+| /chat.loadMessagesByConversation | POST | Gestioneaza mesajele primite pe aceasta ruta |
+| /topic/public | POST | Indica faptul ca mesajele procesate vor fi trimite la toti utilizatorii abonati la acest topic (conversatie privata) |
+| /api/conversations | POST | Crearea unei conversatii noi |
+| /api/conversations/user/{userId} | GET | Obtine toate conversatiile relevante pentru un utilizator specific |
+| /api/exists | GET | Verifica daca exista o conversatie intre 2 utilizatori specifici |
+| /api/files/upload | POST | Permite incarcarea unui fisier de catre utilizator |
+| /api/files/{fileName:.+} | POST | Permite descarcarea unui fisier pe baza numelui acestuia |
+| / | POST | Redirectionare catre /chat daca utilizatorul e autentificat si catre /login in caz contrar |
+| /logout | POST | Deconecteaza utilizatorul curent |
+| /api/messages | GET | Returneaza toate mesajele disponibile in sistem la nivel global (conversatia generala)|
+| /api/messages/{conversationId} | GET | Returneaza toate mesajele disponibile intr-o conversatie specifica |
+| /api/current-user | GET | Returneaza toate informatiile despre utilizatorul curent |
+| /api/users | GET | Returneaza o lista cu toti utilizatorii, excluzant utilizatorul curent |
 
 ## 6. Documente de testare si probleme
 
