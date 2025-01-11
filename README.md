@@ -63,7 +63,7 @@ Cerinte preliminare:
 - **service**: aici este implementata logica de business. Ex: UserService etc.
 - **filter**: folosit pentru a monitoriza cookie-urile, sessiunile, cache-ul si debugging.
 
-###  3.3. Fluxul de date si utilizator
+###  3.3. Fluxul de date si utilizatori
   Acesta este reprezentat in prima faza de autorizare si autentificare, unde utilizatorul trimide datele de autentificare catre server, iar Spring Security valideaza datele si stocheaza detaliile in cadrul sesiunii active. In cadrul schimbului de mesaje intre utilizatori, acestia trimit mesajele printr-o conexiune WebSocket, iar serverul le proceseaza si trasmite mai departe. Mesajele si informatiile despre utilizatori sunt salvate in baza de date, asigurandu-se persistenta acestora, si istoricul mesajelor.
 
   ![UserFlowDiagram drawio](https://github.com/user-attachments/assets/83901e33-e588-4a2b-b7e1-6801769f7daa)
