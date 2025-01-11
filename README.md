@@ -68,6 +68,42 @@ Cerinte preliminare:
 
   ![UserFlowDiagram drawio](https://github.com/user-attachments/assets/83901e33-e588-4a2b-b7e1-6801769f7daa)
 
+## 4. Autentificare si securitate
+
+  Acest capitol detaliaza implementarea securitatii si autentificarii folosind Spring Security, fiind de altfel un modul esential pentru protejarea datelor utilizatorilor, gestionarea accesului si prevenirea accesului neautorizat la resursele aplicatiei.
+
+###  4.1. Prezentarea generala a securitatii
+
+  Securitatea este configurata implementand o politica robusta pentru gestionarea autentificarii, autorizarii si securizarii sesiunilor utilizatorilor.
+Principalele caracteristici ale configuratiei:
+* dezactivarea protectiei CSRF (pentru simplitatea in dezvoltate, se poate reactiva in productie).
+* permisiuni de acces definite in functie de endpoint-uri.
+* configurare pagini personalizate de autentificare.
+* gestionarea sesiunilor multiple si expirate.
+* functionalitati de "remember-me" si logout.
+  
+###  4.2. Autentificarea utilizatorilor
+
+  Aceasta este gestionata prin incarcarea utilizatorilor dintr-un serviciu personalizat (UserService) si validarea credentialelor acestora utilizand PasswordEncoder bazat pe algoritmul BCrypt.
+
+###  4.3. Fluxul de autentificare
+
+1. Utilizatorul acceseaza pagina de login disponibile /login.
+2. Introduce numele de utilizator si parola.
+3. Credentialele sunt validate cu ajutorul UserService.
+4. In cazul unei autentificari reusite, utilizatorul este redirectionat catre /chat.
+5. In caz de eroare, utilizatorul ramane pe pagina de Login si primeste un mesaj corespunzator.
+
+###  4.4. Autorizare si gestionare roluri
+
+  Accesul la resurse nu este controlat pe baza rolurilor utilizatorilor. Momentan, aceasta presupune un singur nivel de acces pentru utilizatorii autentificati. Endpoint-uri precum /api/conversation sunt protejate si necesita autentificare. 
+
+###  4.5. Securizarea cookie-urilor si sesiunilor
+
+  Aplicatia implementeaza protectie suplimentara prin 2 filtre:
+* SameSiteCookieFilter: adauga flag-ul SameSite = Strict pentru toate cookie-urile.
+* NoCacheFilter: previne stocarea informatiilor sensibile in cache.
+
 ## 6. Documente de testare si probleme
 
 ###  6.1. Testare si probleme rezolvate
@@ -77,16 +113,16 @@ Cele mai comune probleme au fost legate de relatiile in modele, de fiecare data 
 
 ###  6.2. Probleme ce vor fi rezolvate
 
-  Ca si probleme nerezolvate avem redenumirea conversatiilor private, aceasta problema fusese rezolvata initial, insa odata cu implementarea atasamentelor si schimbarea anumitor elemente de conversatie in back-end, codul care facea sa redenumeasca conversatiile private pentru fiecare participant (in numele celuilalt) nu mai functioneaza , fiindca ar fii necesare niste modificari in back-end. Dupa redenumirea conversatiilor ar trebui rezolvate numele din head-urul fiecaruia, fiindca momentan la fiecare apare "General", nu doar la conversatia generala. De altfel ar trebui ca atunci cand apas pe butonul de search mesaj in conversatie, sa nu se selecteze toate mesajele daca este casuta goala ( sa implementam o logica prin care ca sa putem da search unui mesaj sa fie minim 2 caractere introdusa in search-bar). 
+  Ca si probleme nerezolvate avem redenumirea conversatiilor private, aceasta problema fusese rezolvata initial, insa odata cu implementarea atasamentelor si schimbarea anumitor elemente de conversatie in back-end, codul care facea sa redenumeasca conversatiile private pentru fiecare participant (in numele celuilalt) nu mai functioneaza , fiindca ar fii necesare niste modificari in back-end. Dupa redenumirea conversatiilor ar trebui rezolvate numele din head-urul fiecaruia, fiindca momentan la fiecare apare "General", nu doar la conversatia generala. De altfel ar trebui ca atunci cand apas pe butonul de search mesaj in conversatie, sa nu se selecteze toate mesajele daca este casuta goala ( sa implementam o logica prin care ca sa putem da search unui mesaj sa fie minim 2 caractere introdusa in search-bar). De altfel o problema a carei cauze nu a fost gasite tine de log-out, fiindca in momentul in care dam log-out si avem o sesiune activa ( de ex pt 2 ore ), aceasta nu este invalidata, practic cookie-ul nu este sters din browser. Ca si posibile cauze ar fi ca defapt cookie-ul este sters doar se creeaza mai multe cookie-uri la logare.
 
 ## 7. Alte cerinte
 
   Exista o serie de cerinte/caracteristici care nu sunt acoperite de MoSCoW list, insa acestea ar putea reprezenta un factor important in popularizarea aplicatiei in randul utilizatorilor. In momentul de fata, putem aminti functii:
 * **conversatii tip grup**:  difera de conversatiile generale prin faptul ca doar utilizatorii adaugati au acces la conversatie, si de altfel exista un numar maxim de utilizatori care pot fi introdusi intr-un grup.
 * **poze/video-uri instant**: se refera la existenta unui buton pentru crearea de materiale foto/video direct din aplicatie si distribuirea lor.
-* **schimbarea numelui conversatiei direct in aplicatie**
+* **schimbarea numelui conversatiei direct in aplicatie**.
 * **setarea de nickname unui utilizator in cadrul conversatiilor de grup**: poate aduce amuzant in cadrul utilizatorilor.
-* **trimitere emoji-uri, stickere, gif-uri**
+* **trimitere emoji-uri, stickere, gif-uri**.
 
 ## 8. Model de analiza
 
