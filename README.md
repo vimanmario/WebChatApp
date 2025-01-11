@@ -104,7 +104,7 @@ Principalele caracteristici ale configuratiei:
 * SameSiteCookieFilter: adauga flag-ul SameSite = Strict pentru toate cookie-urile.
 * NoCacheFilter: previne stocarea informatiilor sensibile in cache.
 
-## 6. API Endpoints
+## 5. API Endpoints
 
 | Endpoint | Metode | Descriere |
 | --------------- | --------------- | --------------- |
@@ -127,18 +127,42 @@ Principalele caracteristici ale configuratiei:
 | /api/current-user | GET | Returneaza toate informatiile despre utilizatorul curent |
 | /api/users | GET | Returneaza o lista cu toti utilizatorii, excluzant utilizatorul curent |
 
-## 6. Documente de testare si probleme
+## 6. Comunicarea folosind WebSockets
 
-###  6.1. Testare si probleme rezolvate
+###  6.1. Server
+
+  WebSockets permite comunicarea bidirectionala eficienta intre client si server. In aplicatia noastra, am utilizat biblioteca Spring WebSocket si protocolul STOMP.
+
+###  6.2. Broker
+
+* /topic : Utilizat pentru mesaje publice.
+* /app : prefix pentru mesajele din aplicatie (mesajele trimise de utilizatori).
+
+###  6.3. Endpoint-uri
+
+* /chat-websocket : punctul de conectare al utilizatorilor
+* Interceptori : adauga sesiunea HTTP la atributele WebSocket, facilitand asocierea cu utilizatorul conectat.
+* SockJS : asigura compatibilitatea cu browsere care nu suporta WebSocket nativ.
+
+###  6.4. Client
+
+  Client-ul utilizeaza SockJS si STOMP pentru conectarea la server si schimb-ul de mesaje.
+* SockJS: creeaza o conexiune WebSocket sau un fallback compatibil.
+* Stomp: gestioneaza trimiterea mesajelor si "abonarea la topicuri", mesajele primite fiind afisate in interfata utilizatorului.
+
+
+## 7. Documente de testare si probleme
+
+###  7.1. Testare si probleme rezolvate
 
   De precizat ca, in lipsa unor standarde de testare, s-a optat pentru folosirea unei abordari bazata pe teste de verificare manuale a fiecarei functionalitati, validand comportamentul si functionarea acestora in mod repetat.
 Cele mai comune probleme au fost legate de relatiile in modele, de fiecare data fiind necesara alegerea caracteristicei EAGER in loc de LAZY pentru incarcarea corecta ( a mesajelor text in prima faza, iar apoi a mesajelor cu atasamente). Introducerea capabilitatii de trimitere a atasamentelor a dat putin peste cap logica generala de trimitere a mesajelor, invocand erori precum "INVALID DATE" si faptul ca atasamentul nu este trimis instant, probleme rezolvate ulterior.
 
-###  6.2. Probleme ce vor fi rezolvate
+###  7.2. Probleme ce vor fi rezolvate
 
   Ca si probleme nerezolvate avem redenumirea conversatiilor private, aceasta problema fusese rezolvata initial, insa odata cu implementarea atasamentelor si schimbarea anumitor elemente de conversatie in back-end, codul care facea sa redenumeasca conversatiile private pentru fiecare participant (in numele celuilalt) nu mai functioneaza , fiindca ar fii necesare niste modificari in back-end. Dupa redenumirea conversatiilor ar trebui rezolvate numele din head-urul fiecaruia, fiindca momentan la fiecare apare "General", nu doar la conversatia generala. De altfel ar trebui ca atunci cand apas pe butonul de search mesaj in conversatie, sa nu se selecteze toate mesajele daca este casuta goala ( sa implementam o logica prin care ca sa putem da search unui mesaj sa fie minim 2 caractere introdusa in search-bar). De altfel o problema a carei cauze nu a fost gasite tine de log-out, fiindca in momentul in care dam log-out si avem o sesiune activa ( de ex pt 2 ore ), aceasta nu este invalidata, practic cookie-ul nu este sters din browser. Ca si posibile cauze ar fi ca defapt cookie-ul este sters doar se creeaza mai multe cookie-uri la logare.
 
-## 7. Alte cerinte
+## 8. Alte cerinte
 
   Exista o serie de cerinte/caracteristici care nu sunt acoperite de MoSCoW list, insa acestea ar putea reprezenta un factor important in popularizarea aplicatiei in randul utilizatorilor. In momentul de fata, putem aminti functii:
 * **conversatii tip grup**:  difera de conversatiile generale prin faptul ca doar utilizatorii adaugati au acces la conversatie, si de altfel exista un numar maxim de utilizatori care pot fi introdusi intr-un grup.
@@ -147,7 +171,7 @@ Cele mai comune probleme au fost legate de relatiile in modele, de fiecare data 
 * **setarea de nickname unui utilizator in cadrul conversatiilor de grup**: poate aduce amuzant in cadrul utilizatorilor.
 * **trimitere emoji-uri, stickere, gif-uri**.
 
-## 8. Model de analiza
+## 9. Model de analiza
 
   Diagrama EER este o reprezentare vizuala a structurii datelor in cadrul aplicatiei noastre de Chat Online. Acest model prezinta atat entitatile, cat si relatiile dintre ele, oferind o intelegere clara a modului in care datele sunt organizate in sistem.. Aceasta diagrama indentifica relatiile cheie precum user, messages, conversations, conversation_participants si message_attachments.
 
