@@ -104,6 +104,23 @@ Principalele caracteristici ale configuratiei:
 * SameSiteCookieFilter: adauga flag-ul SameSite = Strict pentru toate cookie-urile.
 * NoCacheFilter: previne stocarea informatiilor sensibile in cache.
 
+## 6. API Endpoints
+
+| Endpoint | Metode | Descriere |
+| --------------- | --------------- | --------------- |
+| /login | GET | Pagina de login |
+| /register | GET | Pagina de register |
+| Row 3 Column 1 | Row 3 Column 2 | Row 3 Column 3 |
+| Row 1 Column 1 | Row 1 Column 2 | Row 1 Column 3 |
+| Row 2 Column 1 | Row 2 Column 2 | Row 2 Column 3 |
+| Row 3 Column 1 | Row 3 Column 2 | Row 3 Column 3 |
+| Row 1 Column 1 | Row 1 Column 2 | Row 1 Column 3 |
+| Row 2 Column 1 | Row 2 Column 2 | Row 2 Column 3 |
+| Row 3 Column 1 | Row 3 Column 2 | Row 3 Column 3 |
+| Row 1 Column 1 | Row 1 Column 2 | Row 1 Column 3 |
+| Row 2 Column 1 | Row 2 Column 2 | Row 2 Column 3 |
+| Row 3 Column 1 | Row 3 Column 2 | Row 3 Column 3 |
+
 ## 6. Documente de testare si probleme
 
 ###  6.1. Testare si probleme rezolvate
