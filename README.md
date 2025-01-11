@@ -87,3 +87,10 @@ Cele mai comune probleme au fost legate de relatiile in modele, de fiecare data 
 * **schimbarea numelui conversatiei direct in aplicatie**
 * **setarea de nickname unui utilizator in cadrul conversatiilor de grup**: poate aduce amuzant in cadrul utilizatorilor.
 * **trimitere emoji-uri, stickere, gif-uri**
+
+## 8. Model de analiza
+
+  Diagrama EER este o reprezentare vizuala a structurii datelor in cadrul aplicatiei noastre de Chat Online. Acest model prezinta atat entitatile, cat si relatiile dintre ele, oferind o intelegere clara a modului in care datele sunt organizate in sistem.. Aceasta diagrama indentifica relatiile cheie precum user, messages, conversations, conversation_participants si message_attachments.
+
+  ![Capture](https://github.com/user-attachments/assets/bbdf8ba7-fe06-4345-8b01-d7ba8a21123b)
+
