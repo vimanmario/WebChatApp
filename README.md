@@ -47,6 +47,8 @@ Cerinte preliminare:
 ### 3.1. Arhitectura aplicatiei
   Aplicatia utilizeaza un design bazat pe arhitectura MVC(Model-View-Controller), fiecare componenta a proiectului fiind responsabila de un aspect specific al aplicatiei asigurand o separare clara a functionalitatilor. Model gestioneaza logica aplicatiei si interactiunea cu baza de date prin Spring JPA. View asigura afisarea datelor si interactiunea utilizatorilor prin templaturi-le Thymeleaf. Controller primeste cererile de la utilizator, interactioneaza cu serviciile si returneaza raspunsuri catre view. Aplicatia este de asemenea construita folosind module pentru securitate, gestionarea sesiunilor si comunicarea in timp real.
 
+![WebAppArchitecture drawio](https://github.com/user-attachments/assets/69940a13-e91b-410a-bb31-60518e381be3)
+
 ### 3.2. Structura proiectului
   Proiectul este organizat in urmatoarele pachete principale:
 - **controller**: contine clasele care gestioneaza cererile http. Ex: AuthController, ChatController etc.
