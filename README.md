@@ -35,11 +35,9 @@ COULD:
 - reactie la mesaje
 - apeluri video
 - redenumire conversatie/setare nickname
-- trimitere emoji-uri, stickere
 - setare poza profil in aplicatie
 
 WON'T:
-- trimitere audio
 - contacte
 - lista utilizatorilor conectati
 
@@ -78,3 +76,14 @@ Cerinte preliminare:
 Cele mai comune probleme au fost legate de relatiile in modele, de fiecare data fiind necesara alegerea caracteristicei EAGER in loc de LAZY pentru incarcarea corecta ( a mesajelor text in prima faza, iar apoi a mesajelor cu atasamente). Introducerea capabilitatii de trimitere a atasamentelor a dat putin peste cap logica generala de trimitere a mesajelor, invocand erori precum "INVALID DATE" si faptul ca atasamentul nu este trimis instant, probleme rezolvate ulterior.
 
 ###  6.2. Probleme ce vor fi rezolvate
+
+  Ca si probleme nerezolvate avem redenumirea conversatiilor private, aceasta problema fusese rezolvata initial, insa odata cu implementarea atasamentelor si schimbarea anumitor elemente de conversatie in back-end, codul care facea sa redenumeasca conversatiile private pentru fiecare participant (in numele celuilalt) nu mai functioneaza , fiindca ar fii necesare niste modificari in back-end. Dupa redenumirea conversatiilor ar trebui rezolvate numele din head-urul fiecaruia, fiindca momentan la fiecare apare "General", nu doar la conversatia generala. De altfel ar trebui ca atunci cand apas pe butonul de search mesaj in conversatie, sa nu se selecteze toate mesajele daca este casuta goala ( sa implementam o logica prin care ca sa putem da search unui mesaj sa fie minim 2 caractere introdusa in search-bar). 
+
+## 7. Alte cerinte
+
+  Exista o serie de cerinte/caracteristici care nu sunt acoperite de MoSCoW list, insa acestea ar putea reprezenta un factor important in popularizarea aplicatiei in randul utilizatorilor. In momentul de fata, putem aminti functii:
+* **conversatii tip grup**:  difera de conversatiile generale prin faptul ca doar utilizatorii adaugati au acces la conversatie, si de altfel exista un numar maxim de utilizatori care pot fi introdusi intr-un grup.
+* **poze/video-uri instant**: se refera la existenta unui buton pentru crearea de materiale foto/video direct din aplicatie si distribuirea lor.
+* **schimbarea numelui conversatiei direct in aplicatie**
+* **setarea de nickname unui utilizator in cadrul conversatiilor de grup**: poate aduce amuzant in cadrul utilizatorilor.
+* **trimitere emoji-uri, stickere, gif-uri**
