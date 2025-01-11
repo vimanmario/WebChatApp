@@ -1,8 +1,14 @@
 # WebChat Application with Spring Boot
 
 ## 1. Introducere
-  Acest proiect dezvolta o aplicatie de chat web implementand o varietate de tehnologii pentru a asigura o experienta de chat in timp real si un mediu securizat pentru utilizatori.
-  Aplicația permite utilizatorilor să se alăture, să discute și să părăsească camerele de chat în timp real. Spring Boot oferă o arhitectură robustă și scalabilă pentru aplicație, în timp ce WebSocket permite comunicarea în timp real între server și clienți. Aplicația are funcții precum alăturarea camerelor de chat, trimiterea de mesaje și părăsirea camerelor de chat, oferind o experiență de chat perfectă și interactivă pentru utilizatorii săi.
+
+### 1.1. Scop
+
+  Scopul acestui proiect este de a dezvola dezvolta o aplicatie de chat web implementand o varietate de tehnologii pentru a asigura o experienta de chat in timp real si un mediu securizat pentru utilizatori. Proiectul urmareste sa creeze o experienta de comunicare eficienta, securizata si usor de utilizat, integrand functionalitati esentiale precum interactiuni personale si de grup.
+
+### 1.2. Prezentare generala
+
+  Aplicația permite utilizatorilor să se alăture, să discute și să părăsească camerele de chat în timp real. Spring Boot oferă o arhitectură robustă și scalabilă pentru aplicație, în timp ce WebSocket permite comunicarea în timp real între server și clienți. Aplicația are funcții precum alăturarea camerelor de chat, trimiterea de mesaje și părăsirea camerelor de chat, oferind o experiență perfectă și interactivă pentru utilizatorii săi.
 
 ## 2. Elemente de implementare
 
@@ -21,12 +27,13 @@ MUST:
 - conversatii 1 la 1
 
 SHOULD: 
-- capabilitate de trimitere poze, fisiere, video etc.
+- capabilitate de a trimite atasamente.
+- lista utilizatori.
+- UI intuitiv. 
 
 COULD:
 - reactie la mesaje
 - apeluri video
-- poze facute si trimise instant
 - redenumire conversatie/setare nickname
 - trimitere emoji-uri, stickere
 - setare poza profil in aplicatie
@@ -63,3 +70,11 @@ Cerinte preliminare:
 
   ![UserFlowDiagram drawio](https://github.com/user-attachments/assets/83901e33-e588-4a2b-b7e1-6801769f7daa)
 
+## 6. Documente de testare si probleme
+
+###  6.1. Testare si probleme rezolvate
+
+  De precizat ca, in lipsa unor standarde de testare, s-a optat pentru folosirea unei abordari bazata pe teste de verificare manuale a fiecarei functionalitati, validand comportamentul si functionarea acestora in mod repetat.
+Cele mai comune probleme au fost legate de relatiile in modele, de fiecare data fiind necesara alegerea caracteristicei EAGER in loc de LAZY pentru incarcarea corecta ( a mesajelor text in prima faza, iar apoi a mesajelor cu atasamente). Introducerea capabilitatii de trimitere a atasamentelor a dat putin peste cap logica generala de trimitere a mesajelor, invocand erori precum "INVALID DATE" si faptul ca atasamentul nu este trimis instant, probleme rezolvate ulterior.
+
+###  6.2. Probleme ce vor fi rezolvate
